@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a group of time zone period transitions.
     /// </summary>
-    internal class TimeZoneTransitionGroup : ComplexProperty
+    public class TimeZoneTransitionGroup : ComplexProperty
     {
         private TimeZoneDefinition timeZoneDefinition;
         private string id;
@@ -175,7 +175,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Validates this transition group.
         /// </summary>
-        internal void Validate()
+        public void Validate()
         {
             // There must be exactly one or two transitions in the group.
             if (this.transitions.Count < 1 || this.transitions.Count > 2)
@@ -418,7 +418,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the id of this group.
         /// </summary>
-        internal string Id
+        public string Id
         {
             get { return this.id; }
             set { this.id = value; }
@@ -427,7 +427,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the transitions in this group.
         /// </summary>
-        internal List<TimeZoneTransition> Transitions
+        public List<TimeZoneTransition> Transitions
         {
             get { return this.transitions; }
         }

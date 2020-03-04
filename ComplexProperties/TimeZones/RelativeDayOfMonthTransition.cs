@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a time zone period transition that occurs on a relative day of a specific month.
     /// </summary>
-    internal class RelativeDayOfMonthTransition : AbsoluteMonthTransition
+    public class RelativeDayOfMonthTransition : AbsoluteMonthTransition
     {
         private DayOfTheWeek dayOfTheWeek;
         private int weekIndex;
@@ -142,7 +142,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the day of the week when the transition occurs.
         /// </summary>
-        internal DayOfTheWeek DayOfTheWeek
+        public DayOfTheWeek DayOfTheWeek
         {
             get { return this.dayOfTheWeek; }
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the index of the week in the month when the transition occurs.
         /// </summary>
-        internal int WeekIndex
+        public int WeekIndex
         {
             get { return this.weekIndex; }
         }

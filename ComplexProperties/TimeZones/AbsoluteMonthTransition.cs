@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the base class for all recurring time zone period transitions.
     /// </summary>
-    internal abstract class AbsoluteMonthTransition : TimeZoneTransition
+    public abstract class AbsoluteMonthTransition : TimeZoneTransition
     {
         private TimeSpan timeOffset;
         private int month;
@@ -123,7 +123,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the time offset from midnight when the transition occurs.
         /// </summary>
-        internal TimeSpan TimeOffset
+        public TimeSpan TimeOffset
         {
             get { return this.timeOffset; }
         }
@@ -131,7 +131,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the month when the transition occurs.
         /// </summary>
-        internal int Month
+        public int Month
         {
             get { return this.month; }
         }

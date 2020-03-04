@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a time zone period as defined in the EWS schema.
     /// </summary>
-    internal class TimeZonePeriod : ComplexProperty
+    public class TimeZonePeriod : ComplexProperty
     {
         internal const string StandardPeriodId = "Std";
         internal const string StandardPeriodName = "Standard";
@@ -86,7 +86,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeZonePeriod"/> class.
         /// </summary>
-        internal TimeZonePeriod()
+        public TimeZonePeriod()
             : base()
         {
         }
@@ -97,7 +97,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <value>
         ///     <c>true</c> if this instance is standard period; otherwise, <c>false</c>.
         /// </value>
-        internal bool IsStandardPeriod
+        public bool IsStandardPeriod
         {
             get
             {
@@ -111,7 +111,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the bias to UTC associated with this period.
         /// </summary>
-        internal TimeSpan Bias
+        public TimeSpan Bias
         {
             get { return this.bias; }
             set { this.bias = value; }
@@ -120,7 +120,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the name of this period.
         /// </summary>
-        internal string Name
+        public string Name
         {
             get { return this.name; }
             set { this.name = value; }
@@ -129,7 +129,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the id of this period.
         /// </summary>
-        internal string Id
+        public string Id
         {
             get { return this.id; }
             set { this.id = value; }

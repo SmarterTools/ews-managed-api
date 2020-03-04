@@ -33,7 +33,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a time zone as defined by the EWS schema.
     /// </summary>
-    internal class TimeZoneDefinition : ComplexProperty
+    public class TimeZoneDefinition : ComplexProperty
     {
         /// <summary>
         /// Prefix for generated ids.
@@ -78,7 +78,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeZoneDefinition"/> class.
         /// </summary>
-        internal TimeZoneDefinition()
+        public TimeZoneDefinition()
             : base()
         {
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Initializes a new instance of the <see cref="TimeZoneDefinition"/> class.
         /// </summary>
         /// <param name="timeZoneInfo">The time zone info used to initialize this definition.</param>
-        internal TimeZoneDefinition(TimeZoneInfo timeZoneInfo)
+        public TimeZoneDefinition(TimeZoneInfo timeZoneInfo)
             : this()
         {
             this.Id = timeZoneInfo.Id;
@@ -385,7 +385,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Validates this time zone definition.
         /// </summary>
-        internal void Validate()
+        public void Validate()
         {
             // The definition must have at least one period, one transition group and one transition,
             // and there must be as many transitions as there are transition groups.
@@ -430,7 +430,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="service">The service.</param>
         /// <returns>A TimeZoneInfo representing the same time zone as this definition.</returns>
-        internal TimeZoneInfo ToTimeZoneInfo(ExchangeService service)
+        public TimeZoneInfo ToTimeZoneInfo(ExchangeService service)
         {
             this.Validate();
 
@@ -512,7 +512,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the name of this time zone definition.
         /// </summary>
-        internal string Name
+        public string Name
         {
             get { return this.name; }
             set { this.name = value; }
@@ -521,7 +521,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the Id of this time zone definition.
         /// </summary>
-        internal string Id
+        public string Id
         {
             get { return this.id; }
             set { this.id = value; }
@@ -530,7 +530,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the periods associated with this time zone definition, indexed by Id.
         /// </summary>
-        internal Dictionary<string, TimeZonePeriod> Periods
+        public Dictionary<string, TimeZonePeriod> Periods
         {
             get { return this.periods; }
         }
@@ -538,9 +538,14 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the transition groups associated with this time zone definition, indexed by Id.
         /// </summary>
-        internal Dictionary<string, TimeZoneTransitionGroup> TransitionGroups
+        public Dictionary<string, TimeZoneTransitionGroup> TransitionGroups
         {
             get { return this.transitionGroups; }
+        }
+
+        public List<TimeZoneTransition> Transitions
+        {
+	        get { return this.transitions; }
         }
     }
 }

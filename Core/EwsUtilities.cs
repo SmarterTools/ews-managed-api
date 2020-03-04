@@ -42,7 +42,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// EWS utilities
     /// </summary>
-    internal static class EwsUtilities
+    public static class EwsUtilities
     {
         #region Private members
 
@@ -914,7 +914,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="timeSpan">TimeSpan structure to convert</param>
         /// <returns>xs:duration formatted string</returns>
-        internal static string TimeSpanToXSDuration(TimeSpan timeSpan)
+        public static string TimeSpanToXSDuration(TimeSpan timeSpan)
         {
             // Optional '-' offset
             string offsetStr = (timeSpan.TotalSeconds < 0) ? "-" : string.Empty;

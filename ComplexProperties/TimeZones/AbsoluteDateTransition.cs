@@ -33,7 +33,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a time zone period transition that occurs on a fixed (absolute) date.
     /// </summary>
-    internal class AbsoluteDateTransition : TimeZoneTransition
+    public class AbsoluteDateTransition : TimeZoneTransition
     {
         private DateTime dateTime;
 
@@ -113,7 +113,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets or sets the absolute date and time when the transition occurs.
         /// </summary>
-        internal DateTime DateTime
+        public DateTime DateTime
         {
             get { return this.dateTime; }
             set { this.dateTime = value; }

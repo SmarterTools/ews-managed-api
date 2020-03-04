@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the base class for all time zone transitions.
     /// </summary>
-    internal class TimeZoneTransition : ComplexProperty
+    public class TimeZoneTransition : ComplexProperty
     {
         private const string PeriodTarget = "Period";
         private const string GroupTarget = "Group";
@@ -241,7 +241,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the target period of the transition.
         /// </summary>
-        internal TimeZonePeriod TargetPeriod
+        public TimeZonePeriod TargetPeriod
         {
             get { return this.targetPeriod; }
         }
@@ -249,7 +249,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the target transition group of the transition.
         /// </summary>
-        internal TimeZoneTransitionGroup TargetGroup
+        public TimeZoneTransitionGroup TargetGroup
         {
             get { return this.targetGroup; }
         }
