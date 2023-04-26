@@ -182,5 +182,4 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
-/.vs/slnx.sqlite
-/.vs/Microsoft.Exchange.WebServices.Data/v16/Server/sqlite3
+/.vs
