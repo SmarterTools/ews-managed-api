@@ -158,14 +158,7 @@ namespace Microsoft.Exchange.WebServices.Data
         
         private static SetUserPhotoResponse SetResultOrDefault(Func<object> serviceResponseFactory)
         {
-            try
-            {
-                return (SetUserPhotoResponse)serviceResponseFactory();
-            }
-            catch (ServiceRequestException ex)
-            {
-                throw;
-            }
+            return (SetUserPhotoResponse)serviceResponseFactory();
         }
     }
 }
