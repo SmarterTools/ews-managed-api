@@ -62,7 +62,7 @@ namespace Microsoft.Exchange.WebServices.Data
 		/// <returns>Service response.</returns>
 		internal async Task<object> InternalExecuteAsync()
 		{
-			return InternalExecuteAsync(CancellationToken.None);
+			return await InternalExecuteAsync(CancellationToken.None);
 		}
 
 		/// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.Exchange.WebServices.Data
 			var tuple = await ValidateAndEmitRequest(token).ConfigureAwait(false);
 			try
 			{
-				return ReadResponse(tuple.Item2);
+				return await ReadResponse(tuple.Item2);
 			}
 			finally
 			{
@@ -88,7 +88,7 @@ namespace Microsoft.Exchange.WebServices.Data
 		/// </summary>
 		/// <param name="response">The response.</param>
 		/// <returns>Service response.</returns>
-		private object ReadResponse(IEwsHttpWebResponse response)
+		private async Task<object> ReadResponse(IEwsHttpWebResponse response)
 		{
 			object serviceResponse;
 
@@ -103,7 +103,7 @@ namespace Microsoft.Exchange.WebServices.Data
 				{
 					using (MemoryStream memoryStream = new MemoryStream())
 					{
-						using (Stream serviceResponseStream = ServiceRequestBase.GetResponseStream(response))
+						using (Stream serviceResponseStream = await ServiceRequestBase.GetResponseStream(response))
 						{
 							// Copy response to in-memory stream and reset position to start.
 							EwsUtilities.CopyStream(serviceResponseStream, memoryStream);
@@ -117,7 +117,7 @@ namespace Microsoft.Exchange.WebServices.Data
 				}
 				else
 				{
-					using (Stream responseStream = ServiceRequestBase.GetResponseStream(response))
+					using (Stream responseStream = await ServiceRequestBase.GetResponseStream(response))
 					{
 						serviceResponse = this.ReadResponseXml(responseStream, response.Headers);
 					}

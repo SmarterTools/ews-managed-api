@@ -86,9 +86,9 @@ namespace Microsoft.Exchange.WebServices.Data
 		/// </summary>
 		/// <param name="response">HttpWebResponse.</param> 
 		/// <returns>ResponseStream</returns>
-		protected static Stream GetResponseStream(IEwsHttpWebResponse response)
+		protected static async Task<Stream> GetResponseStream(IEwsHttpWebResponse response)
         {
-            var responseStream = response.GetResponseStream().Result;
+            var responseStream = await response.GetResponseStream();
             
             return WrapStream(responseStream, response.ContentEncoding);
         }
@@ -584,7 +584,7 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             this.Validate();
 
-            var request = this.BuildEwsHttpWebRequest();
+            var request = await this.BuildEwsHttpWebRequest();
 
             if (this.service.SendClientLatencies)
             {
@@ -610,7 +610,7 @@ namespace Microsoft.Exchange.WebServices.Data
 
             try
             {
-                response = this.GetEwsHttpWebResponse(request);
+                response = await this.GetEwsHttpWebResponse(request);
             }
             finally
             {
@@ -655,7 +655,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Builds the IEwsHttpWebRequest object for current service request with exception handling.
         /// </summary>
         /// <returns>An IEwsHttpWebRequest instance</returns>
-        protected IEwsHttpWebRequest BuildEwsHttpWebRequest()
+        protected async Task<IEwsHttpWebRequest> BuildEwsHttpWebRequest()
         {
             IEwsHttpWebRequest request = null;
             try
@@ -688,7 +688,7 @@ namespace Microsoft.Exchange.WebServices.Data
             {
                 if (ex.IsProtocolError && ex.Response != null)
                 {
-                    this.ProcessEwsHttpException(ex);
+                    await this.ProcessEwsHttpException(ex);
                 }
 
                 // Wrap exception if the above code block didn't throw
@@ -710,17 +710,17 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="request">The specified IEwsHttpWebRequest</param>
         /// <returns>An IEwsHttpWebResponse instance</returns>
-        protected IEwsHttpWebResponse GetEwsHttpWebResponse(IEwsHttpWebRequest request)
+        protected async Task<IEwsHttpWebResponse> GetEwsHttpWebResponse(IEwsHttpWebRequest request)
         {
             try
             {
-                return request.GetResponseAsync().Result;
+                return await request.GetResponseAsync();
             }
             catch (EwsHttpException ex)
             {
                 if (ex.IsProtocolError && ex.Response != null)
                 {
-                    this.ProcessEwsHttpException(ex);
+                    await this.ProcessEwsHttpException(ex);
                 }
 
                 // Wrap exception if the above code block didn't throw
@@ -737,7 +737,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Processes the web exception.
         /// </summary>
         /// <param name="httpException">The web exception.</param>
-        private void ProcessEwsHttpException(EwsHttpException httpException)
+        private async System.Threading.Tasks.Task ProcessEwsHttpException(EwsHttpException httpException)
         {
             if (httpException.Response != null)
             {
@@ -755,7 +755,7 @@ namespace Microsoft.Exchange.WebServices.Data
                     {
                         using (MemoryStream memoryStream = new MemoryStream())
                         {
-                            using (Stream serviceResponseStream = ServiceRequestBase.GetResponseStream(httpWebResponse))
+                            using (Stream serviceResponseStream = await ServiceRequestBase.GetResponseStream(httpWebResponse))
                             {
                                 // Copy response to in-memory stream and reset position to start.
                                 EwsUtilities.CopyStream(serviceResponseStream, memoryStream);
@@ -770,7 +770,7 @@ namespace Microsoft.Exchange.WebServices.Data
                     }
                     else
                     {
-                        using (Stream stream = ServiceRequestBase.GetResponseStream(httpWebResponse))
+                        using (Stream stream = await ServiceRequestBase.GetResponseStream(httpWebResponse))
                         {
                             EwsServiceXmlReader reader = new EwsServiceXmlReader(stream, this.Service);
                             soapFaultDetails = this.ReadSoapFault(reader);
