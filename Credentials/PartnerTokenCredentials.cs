@@ -31,11 +31,11 @@ namespace Microsoft.Exchange.WebServices.Data
     using System.Net;
     using System.Security.Cryptography;
     using System.Security.Cryptography.Xml;
-    using System.Xml;
+	using System.Xml;
 
-    /// <summary>
-    /// PartnerTokenCredentials can be used to send EWS or autodiscover requests to the managed tenant.
-    /// </summary>
+	/// <summary>
+	/// PartnerTokenCredentials can be used to send EWS or autodiscover requests to the managed tenant.
+	/// </summary>
     internal sealed class PartnerTokenCredentials : WSSecurityBasedCredentials
     {
         private const string WsSecuritySymmetricKeyPathSuffix = "/wssecurity/symmetrickey";
@@ -60,10 +60,20 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// This method is called to apply credentials to a service request before the request is made.
+        /// This method is called to apply credentials to an <see cref="System.Net.Http.HttpClient"/> before the request is made.  
         /// </summary>
-        /// <param name="request">The request.</param>
-        internal override void PrepareWebRequest(IEwsHttpWebRequest request)
+        /// <param name="client">The <see cref="System.Net.Http.HttpClient"/>.</param>
+        /// <param name="handler">The <see cref="System.Net.Http.HttpClientHandler"/> for <paramref name="client"/>.</param>
+        internal override void PrepareHttpClient(HttpClient client, HttpClientHandler handler, Uri url)
+		{
+			this.EwsUrl = url;
+		}
+
+		/// <summary>
+		/// This method is called to apply credentials to a service request before the request is made.
+		/// </summary>
+		/// <param name="request">The request.</param>
+		internal override void PrepareWebRequest(IEwsHttpWebRequest request)
         {
             this.EwsUrl = request.RequestUri;
         }

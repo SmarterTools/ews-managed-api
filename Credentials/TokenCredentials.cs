@@ -27,11 +27,11 @@ namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
     using System.Net;
-    using System.Xml;
+	using System.Xml;
 
-    /// <summary>
-    /// TokenCredentials provides credentials if you already have a token.
-    /// </summary>
+	/// <summary>
+	/// TokenCredentials provides credentials if you already have a token.
+	/// </summary>
     public sealed class TokenCredentials : WSSecurityBasedCredentials
     {
         /// <summary>
@@ -43,12 +43,22 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             EwsUtilities.ValidateParam(securityToken, "securityToken");
         }
-        
-        /// <summary>
-        /// This method is called to apply credentials to a service request before the request is made.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        internal override void PrepareWebRequest(IEwsHttpWebRequest request)
+
+		/// <summary>
+		/// This method is called to apply credentials to an <see cref="System.Net.Http.HttpClient"/> before the request is made.  
+		/// </summary>
+		/// <param name="client">The <see cref="System.Net.Http.HttpClient"/>.</param>
+		/// <param name="handler">The <see cref="System.Net.Http.HttpClientHandler"/> for <paramref name="client"/>.</param>
+		internal override void PrepareHttpClient(HttpClient client, HttpClientHandler handler, Uri url)
+		{
+			this.EwsUrl = url;
+		}
+
+		/// <summary>
+		/// This method is called to apply credentials to a service request before the request is made.
+		/// </summary>
+		/// <param name="request">The request.</param>
+		internal override void PrepareWebRequest(IEwsHttpWebRequest request)
         {
             this.EwsUrl = request.RequestUri;
         }

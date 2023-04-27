@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Autodiscover
 {
     using System;
@@ -82,41 +84,38 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
             try
             {
-                IEwsHttpWebRequest request = this.Service.PrepareHttpWebRequestForUrl(this.Url);
-
-                this.Service.TraceHttpRequestHeaders(TraceFlags.AutodiscoverRequestHttpHeaders, request);
-
+                var request = this.Service.PrepareHttpRequestMessageForUrl(url);
+                
                 bool needSignature = this.Service.Credentials != null && this.Service.Credentials.NeedSignature;
                 bool needTrace = this.Service.IsTraceEnabledFor(TraceFlags.AutodiscoverRequest);
 
-                using (Stream requestStream = request.GetRequestStream())
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    using (MemoryStream memoryStream = new MemoryStream())
+                    using (EwsServiceXmlWriter writer = new EwsServiceXmlWriter(this.Service, memoryStream))
                     {
-                        using (EwsServiceXmlWriter writer = new EwsServiceXmlWriter(this.Service, memoryStream))
-                        {
-                            writer.RequireWSSecurityUtilityNamespace = needSignature;
-                            this.WriteSoapRequest(
-                                this.Url, 
-                                writer);
-                        }
-
-                        if (needSignature)
-                        {
-                            this.service.Credentials.Sign(memoryStream);
-                        }
-
-                        if (needTrace)
-                        {
-                            memoryStream.Position = 0;
-                            this.Service.TraceXml(TraceFlags.AutodiscoverRequest, memoryStream);
-                        }
-
-                        EwsUtilities.CopyStream(memoryStream, requestStream);
+                        writer.RequireWSSecurityUtilityNamespace = needSignature;
+                        this.WriteSoapRequest(
+                            this.Url, 
+                            writer);
                     }
+
+                    if (needSignature)
+                    {
+                        this.service.Credentials.Sign(memoryStream);
+                    }
+
+                    if (needTrace)
+                    {
+                        memoryStream.Position = 0;
+                        this.Service.TraceXml(TraceFlags.AutodiscoverRequest, memoryStream);
+                    }
+
+                    request.Content = new ByteArrayContent(memoryStream.ToArray());
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml") { CharSet = "utf-8" };
                 }
 
-                using (IEwsHttpWebResponse webResponse = request.GetResponse())
+                using var client = Service.PrepareHttpClient(url);
+                using (IEwsHttpWebResponse webResponse = new EwsHttpWebResponse(client.SendAsync(request).Result))
                 {
                     if (AutodiscoverRequest.IsRedirectionResponse(webResponse))
                     {
@@ -172,9 +171,9 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                     }
                 }
             }
-            catch (WebException ex)
+            catch (EwsHttpException ex)
             {
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                if (ex.IsProtocolError && ex.Response != null)
                 {
                     IEwsHttpWebResponse httpWebResponse = this.Service.HttpWebRequestFactory.CreateExceptionResponse(ex);
 
@@ -192,7 +191,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                     }
                     else
                     {
-                        this.ProcessWebException(ex);
+                        this.ProcessEwsHttpException(ex);
                     }
                 }
 
@@ -222,12 +221,12 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         /// <summary>
         /// Processes the web exception.
         /// </summary>
-        /// <param name="webException">The web exception.</param>
-        private void ProcessWebException(WebException webException)
+        /// <param name="httpException">The web exception.</param>
+        private void ProcessEwsHttpException(EwsHttpException httpException)
         {
-            if (webException.Response != null)
+            if (httpException.Response != null)
             {
-                IEwsHttpWebResponse httpWebResponse = this.Service.HttpWebRequestFactory.CreateExceptionResponse(webException);
+                IEwsHttpWebResponse httpWebResponse = this.Service.HttpWebRequestFactory.CreateExceptionResponse(httpException);
                 SoapFaultDetails soapFaultDetails;
 
                 if (httpWebResponse.StatusCode == HttpStatusCode.InternalServerError)
@@ -268,7 +267,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 }
                 else
                 {
-                    this.Service.ProcessHttpErrorResponse(httpWebResponse, webException);
+                    this.Service.ProcessHttpErrorResponse(httpWebResponse, httpException);
                 }
             }
         }
@@ -279,8 +278,8 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         /// <param name="httpWebResponse">The HTTP web response.</param>
         private AutodiscoverResponse CreateRedirectionResponse(IEwsHttpWebResponse httpWebResponse)
         {
-            string location = httpWebResponse.Headers[HttpResponseHeader.Location];
-            if (!string.IsNullOrEmpty(location))
+            var location = httpWebResponse.Headers.Location;
+            if (location is not null)
             {
                 try
                 {
@@ -478,7 +477,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         protected static Stream GetResponseStream(IEwsHttpWebResponse response)
         {
             string contentEncoding = response.ContentEncoding;
-            Stream responseStream = response.GetResponseStream();
+            Stream responseStream = response.GetResponseStream().Result;
 
             if (contentEncoding.ToLowerInvariant().Contains("gzip"))
             {

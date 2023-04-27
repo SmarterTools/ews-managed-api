@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System.Net;
@@ -38,7 +40,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// Delegate method to handle capturing http response headers.
     /// </summary>
     /// <param name="responseHeaders">Http response headers.</param>
-    public delegate void ResponseHeadersCapturedHandler(WebHeaderCollection responseHeaders);
+    public delegate void ResponseHeadersCapturedHandler(HttpResponseHeaders responseHeaders);
 
     /// <summary>
     /// Defines a delegate used to notify that a service object has been modified.

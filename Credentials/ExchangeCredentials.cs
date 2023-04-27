@@ -110,6 +110,13 @@ namespace Microsoft.Exchange.WebServices.Data
             // do nothing by default.
         }
 
+		/// <summary>
+		/// This method is called to apply credentials to an <see cref="System.Net.Http.HttpClient"/> before the request is made.  
+		/// </summary>
+		/// <param name="client">The <see cref="System.Net.Http.HttpClient"/>.</param>
+		/// <param name="handler">The <see cref="System.Net.Http.HttpClientHandler"/> for <paramref name="client"/>.</param>
+		internal abstract void PrepareHttpClient(HttpClient client, HttpClientHandler handler, Uri url);
+
         /// <summary>
         /// Emit any extra necessary namespace aliases for the SOAP:header block.
         /// </summary>

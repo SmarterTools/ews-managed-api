@@ -23,18 +23,20 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using System.Net;
-    using System.Xml;
+	using System.Net;
+	using System.Xml;
 
-    /// <summary>
-    /// Represents the response to GetUserPhoto operation.
-    /// </summary>
+	/// <summary>
+	/// Represents the response to GetUserPhoto operation.
+	/// </summary>
     internal sealed class GetUserPhotoResponse : ServiceResponse
     {
         /// <summary>
@@ -90,26 +92,27 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Read Photo response headers
         /// </summary>
         /// <param name="responseHeaders">The response header.</param>
-        internal override void ReadHeader(WebHeaderCollection responseHeaders)
+        internal override void ReadHeader(HttpResponseHeaders responseHeaders)
         {
             // Parse out the ETag, trimming the quotes
-            string etag = responseHeaders[HttpResponseHeader.ETag];
-            if (etag != null)
-            {
-                etag = etag.Replace("\"", "");
+	        if (responseHeaders.TryGetValues("ETag", out var val))
+	        {
+		        var etag = val.FirstOrDefault();
+		        if (!string.IsNullOrEmpty(etag))
+		        {
+			        etag.Replace("\"", "");
+			        if (etag.Length > 0)
+				        Results.EntityTag = etag;
+		        }
+	        }
 
-                if (etag.Length > 0)
-                {
-                    this.Results.EntityTag = etag;
-                }
-            }
-
-            // Parse the Expires tag, leaving it in UTC
-            string expires = responseHeaders[HttpResponseHeader.Expires];
-            if (expires != null && expires.Length > 0)
-            {
-                this.Results.Expires = DateTime.Parse(expires, null, DateTimeStyles.RoundtripKind);
-            }
+			// Parse the Expires tag, leaving it in UTC
+			if (responseHeaders.TryGetValues("Expires", out val))
+			{
+				var expires = val.FirstOrDefault();
+				if (!string.IsNullOrEmpty(expires) && DateTime.TryParse(expires, null, DateTimeStyles.RoundtripKind, out var exp))
+					Results.Expires = exp;
+			}
         }
     }
 }

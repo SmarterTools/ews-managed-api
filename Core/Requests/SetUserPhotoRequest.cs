@@ -24,6 +24,7 @@
  */
 
 using System.Drawing.Imaging;
+using System.Net.Http.Headers;
 
 namespace Microsoft.Exchange.WebServices.Data
 {
@@ -101,7 +102,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Adds header values to the request
         /// </summary>
         /// <param name="webHeaderCollection">The collection of headers to add to</param>
-        internal override void AddHeaders(WebHeaderCollection webHeaderCollection)
+        internal override void AddHeaders(HttpRequestHeaders webHeaderCollection)
         {
         }
 
@@ -111,7 +112,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <param name="reader">The reader.</param>
         /// <param name="responseHeaders">The HTTP response headers</param>
         /// <returns>Response object.</returns>
-        internal override object ParseResponse(EwsServiceXmlReader reader, WebHeaderCollection responseHeaders)
+        internal override object ParseResponse(EwsServiceXmlReader reader, HttpResponseHeaders responseHeaders)
         {
             SetUserPhotoResponse response = new SetUserPhotoResponse();
             response.LoadFromXml(reader, XmlElementNames.SetUserPhotoResponse);
@@ -154,17 +155,7 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             return SetUserPhotoRequest.SetResultOrDefault(this.InternalExecute);
         }
-
-                /// <summary>
-        /// Ends executing this async request.
-        /// </summary>
-        /// <param name="asyncResult">The async result</param>
-        /// <returns>Service response collection.</returns>
-        internal SetUserPhotoResponse EndExecute(IAsyncResult asyncResult)
-        {
-            return SetUserPhotoRequest.SetResultOrDefault(() => this.EndInternalExecute(asyncResult));
-        }
-
+        
         private static SetUserPhotoResponse SetResultOrDefault(Func<object> serviceResponseFactory)
         {
             try

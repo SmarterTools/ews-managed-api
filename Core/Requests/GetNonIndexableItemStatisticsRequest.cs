@@ -123,6 +123,16 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
+        /// Executes this request.
+        /// </summary>
+        /// <returns>Service response.</returns>
+        internal async Task<GetNonIndexableItemStatisticsResponse> ExecuteAsync()
+        {
+            GetNonIndexableItemStatisticsResponse serviceResponse = (GetNonIndexableItemStatisticsResponse)await InternalExecuteAsync();
+            return serviceResponse;
+        }
+
+        /// <summary>
         /// Mailboxes
         /// </summary>
         public string[] Mailboxes { get; set; }

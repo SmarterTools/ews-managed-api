@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
@@ -150,7 +152,7 @@ namespace Microsoft.Exchange.WebServices.Data
 
             if (acceptGzipEncoding)
             {
-                request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
+                request.Headers.Add("Accept-Encoding", "gzip,deflate");
             }
 
             if (!string.IsNullOrEmpty(this.clientRequestId))
@@ -199,21 +201,21 @@ namespace Microsoft.Exchange.WebServices.Data
             request.Accept = "text/xml";
         }
 
-        /// <summary>
-        /// Processes an HTTP error response
-        /// </summary>
-        /// <param name="httpWebResponse">The HTTP web response.</param>
-        /// <param name="webException">The web exception.</param>
-        /// <param name="responseHeadersTraceFlag">The trace flag for response headers.</param>
-        /// <param name="responseTraceFlag">The trace flag for responses.</param>
-        /// <remarks>
-        /// This method doesn't handle 500 ISE errors. This is handled by the caller since
-        /// 500 ISE typically indicates that a SOAP fault has occurred and the handling of
-        /// a SOAP fault is currently service specific.
-        /// </remarks>
-        internal void InternalProcessHttpErrorResponse(
+		/// <summary>
+		/// Processes an HTTP error response
+		/// </summary>
+		/// <param name="httpWebResponse">The HTTP web response.</param>
+		/// <param name="httpException">The web exception.</param>
+		/// <param name="responseHeadersTraceFlag">The trace flag for response headers.</param>
+		/// <param name="responseTraceFlag">The trace flag for responses.</param>
+		/// <remarks>
+		/// This method doesn't handle 500 ISE errors. This is handled by the caller since
+		/// 500 ISE typically indicates that a SOAP fault has occurred and the handling of
+		/// a SOAP fault is currently service specific.
+		/// </remarks>
+		internal void InternalProcessHttpErrorResponse(
                             IEwsHttpWebResponse httpWebResponse,
-                            WebException webException,
+                            EwsHttpException httpException,
                             TraceFlags responseHeadersTraceFlag,
                             TraceFlags responseTraceFlag)
         {
@@ -241,16 +243,16 @@ namespace Microsoft.Exchange.WebServices.Data
                 throw new AccountIsLockedException(
                     string.Format(Strings.AccountIsLocked, accountUnlockUrl),
                     accountUnlockUrl,
-                    webException);
+                    httpException);
             }
         }
 
-        /// <summary>
-        /// Processes an HTTP error response.
-        /// </summary>
-        /// <param name="httpWebResponse">The HTTP web response.</param>
-        /// <param name="webException">The web exception.</param>
-        internal abstract void ProcessHttpErrorResponse(IEwsHttpWebResponse httpWebResponse, WebException webException);
+		/// <summary>
+		/// Processes an HTTP error response.
+		/// </summary>
+		/// <param name="httpWebResponse">The HTTP web response.</param>
+		/// <param name="httpException">The web exception.</param>
+		internal abstract void ProcessHttpErrorResponse(IEwsHttpWebResponse httpWebResponse, EwsHttpException httpException);
 
         /// <summary>
         /// Determines whether tracing is enabled for specified trace flag(s).
@@ -341,21 +343,21 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Save the HTTP response headers.
         /// </summary>
         /// <param name="headers">The response headers</param>
-        private void SaveHttpResponseHeaders(WebHeaderCollection headers)
+        private void SaveHttpResponseHeaders(HttpResponseHeaders headers)
         {
             this.httpResponseHeaders.Clear();
 
-            foreach (string key in headers.AllKeys)
+            foreach(var kvp in headers)
             {
                 string existingValue;
 
-                if (this.httpResponseHeaders.TryGetValue(key, out existingValue))
+                if (this.httpResponseHeaders.TryGetValue(kvp.Key, out existingValue))
                 {
-                    this.httpResponseHeaders[key] = existingValue + "," + headers[key];
+                    this.httpResponseHeaders[kvp.Key] = existingValue + "," + string.Join(',',kvp.Value);
                 }
                 else
                 {
-                    this.httpResponseHeaders.Add(key, headers[key]);
+                    this.httpResponseHeaders.Add(kvp.Key, string.Join(',', kvp.Value));
                 }
             }
 
@@ -464,18 +466,7 @@ namespace Microsoft.Exchange.WebServices.Data
             }
             return dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
         }
-
-        /// <summary>
-        /// Register the custom auth module to support non-ascii upn authentication if the server supports that 
-        /// </summary>
-        internal void RegisterCustomBasicAuthModule()
-        {
-            if (this.RequestedServerVersion >= ExchangeVersion.Exchange2013_SP1)
-            {
-                BasicAuthModuleForUTF8.InstantiateIfNeeded();
-            }
-        }
-
+        
         /// <summary>
         /// Sets the user agent to a custom value
         /// </summary>

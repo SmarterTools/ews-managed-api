@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.IO.Enumeration;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
@@ -60,26 +62,11 @@ namespace Microsoft.Exchange.WebServices.Data
             this.Service.Unsubscribe(this.Id);
         }
 
-        /// <summary>
-        /// Begins an asynchronous request to unsubscribe from the streaming subscription. 
-        /// </summary>
-        /// <param name="callback">The AsyncCallback delegate.</param>
-        /// <param name="state">An object that contains state information for this request.</param>
-        /// <returns>An IAsyncResult that references the asynchronous request.</returns>
-        public IAsyncResult BeginUnsubscribe(AsyncCallback callback, object state)
+        public async System.Threading.Tasks.Task UnsubscribeAsync()
         {
-            return this.Service.BeginUnsubscribe(callback, state, this.Id);
+	        await Service.UnsubscribeAsync(Id);
         }
-
-        /// <summary>
-        /// Ends an asynchronous request to unsubscribe from the streaming subscription. 
-        /// </summary>
-        /// <param name="asyncResult">An IAsyncResult that references the asynchronous request.</param>
-        public void EndUnsubscribe(IAsyncResult asyncResult)
-        {
-            this.Service.EndUnsubscribe(asyncResult);
-        }
-
+        
         /// <summary>
         /// Gets the service used to create this subscription.
         /// </summary>

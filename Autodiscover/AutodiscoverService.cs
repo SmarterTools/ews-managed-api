@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Autodiscover
 {
     using System;
@@ -139,7 +141,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
         private string domain;
         private bool? isExternal = true;
-        private Uri url;
+        private Uri _url;
         private AutodiscoverRedirectionUrlValidationCallback redirectionUrlValidationCallback;
         private AutodiscoverDnsClient dnsClient;
         private IPAddress dnsServerAddress;
@@ -181,15 +183,11 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 string.Format("Trying to call Autodiscover for {0} on {1}.", emailAddress, url));
 
             TSettings settings = new TSettings();
-
-            IEwsHttpWebRequest request = this.PrepareHttpWebRequestForUrl(url);
-
-            this.TraceHttpRequestHeaders(TraceFlags.AutodiscoverRequestHttpHeaders, request);
-
-            using (Stream requestStream = request.GetRequestStream())
+            
+            var request = this.PrepareHttpRequestMessageForUrl(url);
+            
+            using (var requestStream = new MemoryStream())
             {
-                Stream writerStream = requestStream;
-
                 // If tracing is enabled, we generate the request in-memory so that we
                 // can pass it along to the ITraceListener. Then we copy the stream to
                 // the request stream.
@@ -215,9 +213,13 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                         this.WriteLegacyAutodiscoverRequest(emailAddress, settings, writer);
                     }
                 }
+
+                request.Content = new ByteArrayContent(requestStream.ToArray());
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml") { CharSet = "utf-8" };
             }
 
-            using (IEwsHttpWebResponse webResponse = request.GetResponse())
+            using (var client = PrepareHttpClient(url))
+            using (IEwsHttpWebResponse webResponse = new EwsHttpWebResponse(client.SendAsync(request).Result))
             {
                 Uri redirectUrl;
                 if (this.TryGetRedirectionResponse(webResponse, out redirectUrl))
@@ -226,7 +228,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                     return settings;
                 }
 
-                using (Stream responseStream = webResponse.GetResponseStream())
+                using (var responseStream = webResponse.GetResponseStream().Result)
                 {
                     // If tracing is enabled, we read the entire response into a MemoryStream so that we
                     // can pass it along to the ITraceListener. Then we parse the response from the 
@@ -300,9 +302,9 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
             try
             {
-                response = request.GetResponse();
+                response = request.GetResponseAsync().Result;
             }
-            catch (WebException ex)
+            catch (EwsHttpException ex)
             {
                 this.TraceMessage(
                     TraceFlags.AutodiscoverConfiguration,
@@ -354,9 +356,9 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
             if (AutodiscoverRequest.IsRedirectionResponse(response))
             {
                 // Get the redirect location and verify that it's valid.
-                string location = response.Headers[HttpResponseHeader.Location];
+                var location = response.Headers.Location;
 
-                if (!string.IsNullOrEmpty(location))
+                if (location is not null)
                 {
                     try
                     {
@@ -543,7 +545,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                             break;
                     }
                 }
-                catch (WebException ex)
+                catch (EwsHttpException ex)
                 {
                     if (ex.Response != null)
                     {
@@ -564,7 +566,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
                             this.TraceMessage(
                                 TraceFlags.AutodiscoverConfiguration,
-                                string.Format("{0} failed: {1} ({2})", url, ex.GetType().Name, ex.Message));
+                                string.Format("{0} failed: {1} ({2})", _url, ex.GetType().Name, ex.Message));
 
                             // The url did not work, let's try the next.
                             currentUrlIndex++;
@@ -574,7 +576,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                     {
                         this.TraceMessage(
                             TraceFlags.AutodiscoverConfiguration,
-                            string.Format("{0} failed: {1} ({2})", url, ex.GetType().Name, ex.Message));
+                            string.Format("{0} failed: {1} ({2})", _url, ex.GetType().Name, ex.Message));
 
                         // The url did not work, let's try the next.
                         currentUrlIndex++;
@@ -584,7 +586,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 {
                     this.TraceMessage(
                         TraceFlags.AutodiscoverConfiguration,
-                        string.Format("{0} failed: XML parsing error: {1}", url, ex.Message));
+                        string.Format("{0} failed: XML parsing error: {1}", _url, ex.Message));
 
                     // The content at the URL wasn't a valid response, let's try the next.
                     currentUrlIndex++;
@@ -593,7 +595,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 {
                     this.TraceMessage(
                         TraceFlags.AutodiscoverConfiguration,
-                        string.Format("{0} failed: I/O error: {1}", url, ex.Message));
+                        string.Format("{0} failed: I/O error: {1}", _url, ex.Message));
 
                     // The content at the URL wasn't a valid response, let's try the next.
                     currentUrlIndex++;
@@ -738,7 +740,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                                 return false;
                         }
                     }
-                    catch (WebException ex)
+                    catch (EwsHttpException ex)
                     {
                         if (ex.Response != null)
                         {
@@ -758,7 +760,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
                         this.TraceMessage(
                             TraceFlags.AutodiscoverConfiguration,
-                            string.Format("{0} failed: {1} ({2})", url, ex.GetType().Name, ex.Message));
+                            string.Format("{0} failed: {1} ({2})", _url, ex.GetType().Name, ex.Message));
 
                         return false;
                     }
@@ -1370,9 +1372,9 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
 
                 try
                 {
-                    response = request.GetResponse();
+                    response = request.GetResponseAsync().Result;
                 }
-                catch (WebException ex)
+                catch (EwsHttpException ex)
                 {
                     this.TraceMessage(
                         TraceFlags.AutodiscoverConfiguration,
@@ -1439,23 +1441,23 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         private AutodiscoverEndpoints GetEndpointsFromHttpWebResponse(IEwsHttpWebResponse response)
         {
             AutodiscoverEndpoints endpoints = AutodiscoverEndpoints.Legacy;
-            if (!string.IsNullOrEmpty(response.Headers[AutodiscoverSoapEnabledHeaderName]))
+            if (response.Headers.TryGetValues(AutodiscoverSoapEnabledHeaderName, out _))
             {
                 endpoints |= AutodiscoverEndpoints.Soap;
             }
-            if (!string.IsNullOrEmpty(response.Headers[AutodiscoverWsSecurityEnabledHeaderName]))
+            if (response.Headers.TryGetValues(AutodiscoverWsSecurityEnabledHeaderName, out _))
             {
                 endpoints |= AutodiscoverEndpoints.WsSecurity;
             }
-            if (!string.IsNullOrEmpty(response.Headers[AutodiscoverWsSecuritySymmetricKeyEnabledHeaderName]))
+            if (response.Headers.TryGetValues(AutodiscoverWsSecuritySymmetricKeyEnabledHeaderName, out _))
             {
                 endpoints |= AutodiscoverEndpoints.WSSecuritySymmetricKey;
             }
-            if (!string.IsNullOrEmpty(response.Headers[AutodiscoverWsSecurityX509CertEnabledHeaderName]))
+            if (response.Headers.TryGetValues(AutodiscoverWsSecurityX509CertEnabledHeaderName, out _))
             {
                 endpoints |= AutodiscoverEndpoints.WSSecurityX509Cert;
             }
-            if (!string.IsNullOrEmpty(response.Headers[AutodiscoverOAuthEnabledHeaderName]))
+            if (response.Headers.TryGetValues(AutodiscoverOAuthEnabledHeaderName, out _))
             {
                 endpoints |= AutodiscoverEndpoints.OAuth;
             }
@@ -1486,21 +1488,79 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
             }
         }
 
-        #endregion
+		#endregion
 
-        #region Utilities
-        /// <summary>
-        /// Creates an HttpWebRequest instance and initializes it with the appropriate parameters,
-        /// based on the configuration of this service object.
-        /// </summary>
-        /// <param name="url">The URL that the HttpWebRequest should target.</param>
-        internal IEwsHttpWebRequest PrepareHttpWebRequestForUrl(Uri url)
-        {
-            return this.PrepareHttpWebRequestForUrl(
-                            url,
-                            false,      // acceptGzipEncoding
-                            false);     // allowAutoRedirect
-        }
+		#region Utilities
+
+		/// <summary>
+		/// Creates a <see cref="System.Net.Http.HttpRequestMessage"/> instance and initializes it with the appropriate parameters,
+		/// based on the configuration of this service object.
+		/// </summary>
+		/// <param name="url">The URL that the HttpRequestMessage should target.</param>
+		internal HttpRequestMessage PrepareHttpRequestMessageForUrl(Uri url)
+		{
+			if (url.Scheme != "http" && url.Scheme != "https")
+				throw new ServiceLocalException(string.Format(Strings.UnsupportedWebProtocol, url.Scheme));
+
+			var requestMsg = new HttpRequestMessage(HttpMethod.Post, url);
+            requestMsg.Headers.Accept.ParseAdd("text/xml");
+            requestMsg.Headers.UserAgent.ParseAdd(UserAgent);
+
+            if (HttpHeaders.Count > 0)
+            {
+	            foreach (var kvp in HttpHeaders)
+                    requestMsg.Headers.Add(kvp.Key, kvp.Value);
+            }
+
+			if (!string.IsNullOrEmpty(ClientRequestId))
+			{
+				if (requestMsg.Headers.Contains("Client-Request-Id"))
+					requestMsg.Headers.Remove("Client-Request-Id");
+                requestMsg.Headers.Add("Client-Request-Id", ClientRequestId);
+
+                if (ReturnClientRequestId)
+                {
+	                if (requestMsg.Headers.Contains("Return-Client-Request-Id"))
+		                requestMsg.Headers.Remove("Return-Client-Request-Id");
+	                requestMsg.Headers.Add("Return-Client-Request-Id", "true");
+                }
+            }
+            
+			return requestMsg;
+		}
+
+		internal HttpClient PrepareHttpClient(Uri url)
+		{
+			var clientHandler = new HttpClientHandler
+			{
+				PreAuthenticate = PreAuthenticate,
+				AllowAutoRedirect = false,
+				CookieContainer = CookieContainer,
+				UseDefaultCredentials = UseDefaultCredentials,
+			};
+
+			if (WebProxy is not null)
+			{
+                clientHandler.Proxy = WebProxy;
+                clientHandler.UseProxy = true;
+			}
+
+            var httpClient = new HttpClient(clientHandler)
+            {
+	            Timeout = TimeSpan.FromMilliseconds(Timeout)
+            };
+
+            if (!UseDefaultCredentials)
+			{
+				if (Credentials is null)
+					throw new ServiceLocalException(Strings.CredentialsRequired);
+
+				Credentials.PreAuthenticate();
+				Credentials.PrepareHttpClient(httpClient, clientHandler, url);
+			}
+
+            return httpClient;
+		}
 
         /// <summary>
         /// Calls the redirection URL validation callback.
@@ -1519,16 +1579,16 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
             return callback(redirectionUrl);
         }
 
-        /// <summary>
-        /// Processes an HTTP error response.
-        /// </summary>
-        /// <param name="httpWebResponse">The HTTP web response.</param>
-        /// <param name="webException">The web exception.</param>
-        internal override void ProcessHttpErrorResponse(IEwsHttpWebResponse httpWebResponse, WebException webException)
+		/// <summary>
+		/// Processes an HTTP error response.
+		/// </summary>
+		/// <param name="httpWebResponse">The HTTP web response.</param>
+		/// <param name="httpException">The web exception.</param>
+		internal override void ProcessHttpErrorResponse(IEwsHttpWebResponse httpWebResponse, EwsHttpException httpException)
         {
             this.InternalProcessHttpErrorResponse(
                 httpWebResponse,
-                webException,
+                httpException,
                 TraceFlags.AutodiscoverResponseHttpHeaders,
                 TraceFlags.AutodiscoverResponse);
         }
@@ -1601,7 +1661,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         {
             EwsUtilities.ValidateDomainNameAllowNull(domain, "domain");
 
-            this.url = url;
+            this._url = url;
             this.domain = domain;
             this.dnsClient = new AutodiscoverDnsClient(this);
         }
@@ -1620,7 +1680,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         {
             EwsUtilities.ValidateDomainNameAllowNull(domain, "domain");
 
-            this.url = url;
+            this._url = url;
             this.domain = domain;
             this.dnsClient = new AutodiscoverDnsClient(this);
         }
@@ -1849,7 +1909,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 // If Domain property is set to non-null value, Url property is nulled.
                 if (value != null)
                 {
-                    this.url = null;
+                    this._url = null;
                 }
                 this.domain = value;
             }
@@ -1860,7 +1920,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
         /// </summary>
         public Uri Url
         {
-            get { return this.url; }
+            get { return this._url; }
             set
             {
                 // If Url property is set to non-null value, Domain property is set to host portion of Url.
@@ -1868,7 +1928,7 @@ namespace Microsoft.Exchange.WebServices.Autodiscover
                 {
                     this.domain = value.Host;
                 }
-                this.url = value;
+                this._url = value;
             }
         }
 

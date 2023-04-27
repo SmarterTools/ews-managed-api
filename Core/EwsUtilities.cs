@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
@@ -447,16 +449,15 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="sb">StringBuilder.</param>
         /// <param name="headers">The HTTP headers.</param>
-        private static void FormatHttpHeaders(StringBuilder sb, WebHeaderCollection headers)
+        private static void FormatHttpHeaders(StringBuilder sb, HttpHeaders headers)
         {
-            foreach (string key in headers.Keys)
-            {
-                sb.Append(
-                    string.Format(
-                        "{0}: {1}\n",
-                        key,
-                        headers[key]));
-            }
+	        foreach (var item in headers)
+	        {
+		        foreach (var value in item.Value)
+		        {
+			        sb.Append($"{item.Key}: {value}\n");
+		        }
+	        }
         }
 
         /// <summary>
@@ -493,43 +494,23 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Format request HTTP headers.
-        /// </summary>
-        /// <param name="request">The HTTP request.</param>
-        internal static string FormatHttpRequestHeaders(HttpWebRequest request)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(
-                string.Format(
-                    "{0} {1} HTTP/{2}\n",
-                    request.Method.ToUpperInvariant(),
-                    request.RequestUri.AbsolutePath,
-                    request.ProtocolVersion));
-
-            sb.Append(EwsUtilities.FormatHttpHeaders(request.Headers));
-            sb.Append("\n");
-            return sb.ToString();
-        }
-
-        /// <summary>
         /// Formats HTTP headers.
         /// </summary>
         /// <param name="headers">The headers.</param>
         /// <returns>Headers as a string</returns>
-        private static string FormatHttpHeaders(WebHeaderCollection headers)
+        private static string FormatHttpHeaders(HttpHeaders headers)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (string key in headers.Keys)
+            foreach (var item in headers)
             {
-                sb.Append(
-                    string.Format(
-                        "{0}: {1}\n",
-                        key,
-                        headers[key]));
+	            foreach (var value in item.Value)
+	            {
+		            sb.Append($"{item.Key}: {value}\n");
+	            }
             }
             return sb.ToString();
         }
-
+        
         /// <summary>
         /// Format XML content in a MemoryStream for message.
         /// </summary>

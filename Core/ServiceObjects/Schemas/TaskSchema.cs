@@ -177,9 +177,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 PropertyDefinitionFlags.CanSet | PropertyDefinitionFlags.CanUpdate | PropertyDefinitionFlags.CanDelete | PropertyDefinitionFlags.CanFind,
                 ExchangeVersion.Exchange2007_SP1,
                 true);  // isNullable
-
-        // TODO : This is the worst possible name for that property
-
+        
         /// <summary>
         /// Defines the Mode property.
         /// </summary>

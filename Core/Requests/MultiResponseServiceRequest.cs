@@ -145,27 +145,35 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Ends executing this async request.
+        /// Executes this request.
         /// </summary>
-        /// <param name="asyncResult">The async result</param>
         /// <returns>Service response collection.</returns>
-        internal ServiceResponseCollection<TResponse> EndExecute(IAsyncResult asyncResult)
+		internal async Task<ServiceResponseCollection<TResponse>> ExecuteAsync()
         {
-            ServiceResponseCollection<TResponse> serviceResponses = (ServiceResponseCollection<TResponse>)this.EndInternalExecute(asyncResult);
-
-            if (this.ErrorHandlingMode == ServiceErrorHandling.ThrowOnError)
-            {
-                EwsUtilities.Assert(
-                    serviceResponses.Count == 1,
-                    "MultiResponseServiceRequest.Execute",
-                    "ServiceErrorHandling.ThrowOnError error handling is only valid for singleton request");
-
-                serviceResponses[0].ThrowIfNecessary();
-            }
-
-            return serviceResponses;
+	        return await ExecuteAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Executes this request.
+        /// </summary>
+        /// <returns>Service response collection.</returns>
+		internal async Task<ServiceResponseCollection<TResponse>> ExecuteAsync(CancellationToken token)
+		{
+			var serviceResponses = (ServiceResponseCollection<TResponse>)await InternalExecuteAsync(token).ConfigureAwait(false);
+
+			if (this.ErrorHandlingMode == ServiceErrorHandling.ThrowOnError)
+			{
+				EwsUtilities.Assert(
+					serviceResponses.Count == 1,
+					"MultiResponseServiceRequest.Execute",
+					"ServiceErrorHandling.ThrowOnError error handling is only valid for singleton request");
+
+				serviceResponses[0].ThrowIfNecessary();
+			}
+
+			return serviceResponses;
+		}
+        
         /// <summary>
         /// Gets a value indicating how errors should be handled.
         /// </summary>

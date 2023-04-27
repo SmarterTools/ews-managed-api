@@ -23,17 +23,19 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
     using System.IO;
     using System.Net;
-    using System.Text;
-    using System.Xml;
+	using System.Text;
+	using System.Xml;
 
-    /// <summary>
-    /// WindowsLiveCredentials provides credentials for Windows Live ID authentication.
-    /// </summary>
+	/// <summary>
+	/// WindowsLiveCredentials provides credentials for Windows Live ID authentication.
+	/// </summary>
     internal sealed class WindowsLiveCredentials : WSSecurityBasedCredentials
     {
         private string windowsLiveId;
@@ -142,12 +144,22 @@ namespace Microsoft.Exchange.WebServices.Data
                 this.windowsLiveUrl = value;
             }
         }
-        
-        /// <summary>
-        /// This method is called to apply credentials to a service request before the request is made.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        internal override void PrepareWebRequest(IEwsHttpWebRequest request)
+
+		/// <summary>
+		/// This method is called to apply credentials to an <see cref="System.Net.Http.HttpClient"/> before the request is made.  
+		/// </summary>
+		/// <param name="client">The <see cref="System.Net.Http.HttpClient"/>.</param>
+		/// <param name="handler">The <see cref="System.Net.Http.HttpClientHandler"/> for <paramref name="client"/>.</param>
+		internal override void PrepareHttpClient(HttpClient client, HttpClientHandler handler, Uri url)
+		{
+			this.EwsUrl = url;
+		}
+
+		/// <summary>
+		/// This method is called to apply credentials to a service request before the request is made.
+		/// </summary>
+		/// <param name="request">The request.</param>
+		internal override void PrepareWebRequest(IEwsHttpWebRequest request)
         {
             if ((this.EwsUrl == null) || (this.EwsUrl != request.RequestUri))
             {
@@ -174,7 +186,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="uriForTokenEndpointReference">The Uri to use for the endpoint reference for our token</param>
         /// <returns>Response to token request.</returns>
-        private HttpWebResponse EmitTokenRequest(Uri uriForTokenEndpointReference)
+        private HttpResponseMessage EmitTokenRequest(Uri uriForTokenEndpointReference)
         {
             const string TokenRequest =
                 "<?xml version='1.0' encoding='UTF-8'?>" +
@@ -243,24 +255,17 @@ namespace Microsoft.Exchange.WebServices.Data
                 this.password,
                 securityTimestamp.GetCreationTimeChars(),
                 securityTimestamp.GetExpiryTimeChars(),
-                uriForTokenEndpointReference.ToString());
+                uriForTokenEndpointReference);
 
-            // Create and send the request.
-            HttpWebRequest webRequest = (HttpWebRequest) HttpWebRequest.Create(this.windowsLiveUrl);
+			// Create and send the request.
+            using var httpClient = new HttpClient();
+            using var message = new HttpRequestMessage(HttpMethod.Post, windowsLiveUrl);
             
-            webRequest.Method = "POST";
-            webRequest.ContentType = "text/xml; charset=utf-8";
-            byte[] requestBytes = Encoding.UTF8.GetBytes(requestToSend);
-            webRequest.ContentLength = requestBytes.Length;
+            var requestBytes = Encoding.UTF8.GetBytes(requestToSend);
+            message.Content = new ByteArrayContent(requestBytes);
+            message.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml", "utf-8");
 
-            // NOTE: We're not tracing the request to Windows Live here because it has the user name and
-            // password in it.
-            using (Stream requestStream = webRequest.GetRequestStream())
-            {
-                requestStream.Write(requestBytes, 0, requestBytes.Length);
-            }
-            
-            return (HttpWebResponse)webRequest.GetResponse();
+            return httpClient.Send(message);
         }
 
         /// <summary>
@@ -268,7 +273,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="memoryStream">The response content in a MemoryStream.</param>
-        private void TraceResponse(HttpWebResponse response, MemoryStream memoryStream)
+        private void TraceResponse(HttpResponseMessage response, MemoryStream memoryStream)
         {
             EwsUtilities.Assert(
                 memoryStream != null,
@@ -280,9 +285,9 @@ namespace Microsoft.Exchange.WebServices.Data
                 return;
             }
             
-            if (!string.IsNullOrEmpty(response.ContentType) && 
-                (response.ContentType.StartsWith("text/", StringComparison.OrdinalIgnoreCase) ||
-                 response.ContentType.StartsWith("application/soap", StringComparison.OrdinalIgnoreCase)))
+            if (!string.IsNullOrEmpty(response.Content.Headers.ContentType?.MediaType) && 
+                (response.Content.Headers.ContentType.MediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase) ||
+                 response.Content.Headers.ContentType.MediaType.StartsWith("application/soap", StringComparison.OrdinalIgnoreCase)))
             {
                 this.traceListener.Trace(
                     "WindowsLiveResponse",
@@ -296,17 +301,15 @@ namespace Microsoft.Exchange.WebServices.Data
             }
         }
 
-        private void TraceWebException(WebException e)
+        private void TraceEwsHttpException(EwsHttpException e)
         {
             // If there wasn't a response, there's nothing to trace.
             if (e.Response == null)
             {
                 if (this.TraceEnabled)
-                {
-                    string logMessage = string.Format(
-                        "Exception Received when sending Windows Live token request: {0}",
-                        e);
-                    this.traceListener.Trace("WindowsLiveResponse", logMessage);
+				{
+					var logMessage = $"Exception Received when sending Windows Live token request: {e}";
+					this.traceListener.Trace("WindowsLiveResponse", logMessage);
                 }
                 return;
             }
@@ -318,14 +321,14 @@ namespace Microsoft.Exchange.WebServices.Data
             {
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    using (Stream responseStream = e.Response.GetResponseStream())
+                    using (Stream responseStream = e.Response.Content.ReadAsStream())
                     {
                         // Copy response to in-memory stream and reset position to start.
                         EwsUtilities.CopyStream(responseStream, memoryStream);
                         memoryStream.Position = 0;
                     }
 
-                    this.TraceResponse((HttpWebResponse) e.Response, memoryStream);
+                    this.TraceResponse(e.Response, memoryStream);
                 }
             }
         }
@@ -338,26 +341,23 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             // Post the request to Windows Live and load the response into an EwsXmlReader for
             // processing.
-            HttpWebResponse response;
+            HttpResponseMessage response;
 
             try
             {
                 response = this.EmitTokenRequest(uriForTokenEndpointReference);
             }
-            catch (WebException e)
+            catch (EwsHttpException e)
             {
-                if (e.Status == WebExceptionStatus.ProtocolError && e.Response != null)
+                if (e.IsProtocolError && e.Response != null)
                 {
-                    this.TraceWebException(e);
+                    this.TraceEwsHttpException(e);
                 }
                 else
                 {
                     if (this.TraceEnabled)
                     {
-                        string traceString = string.Format(
-                            "Error occurred sending request - status was {0}, exception {1}",
-                            e.Status,
-                            e);
+                        var traceString = $"Error occurred sending request - exception {e}";
                         this.traceListener.Trace(
                             "WindowsLiveCredentials",
                             traceString);
@@ -371,14 +371,13 @@ namespace Microsoft.Exchange.WebServices.Data
             {
                 this.ProcessTokenResponse(response);
             }
-            catch (WebException e)
+            catch (EwsHttpException e)
             {
                 if (this.TraceEnabled)
                 {
-                    string traceString = string.Format(
-                        "Error occurred sending request - status was {0}, exception {1}",
-                        e.Status,
-                        e);
+                    var traceString = e.IsProtocolError
+						? $"Error occurred sending request - status was {e.Response.StatusCode}, exception {e}"
+						: $"Error occurred sending request - exception {e}";
                     this.traceListener.Trace(
                         "WindowsLiveCredentials",
                         traceString);
@@ -543,11 +542,11 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Grabs the issued token information out of a response from Windows Live.
         /// </summary>
         /// <param name="response">The token response</param>
-        private void ProcessTokenResponse(HttpWebResponse response)
+        private void ProcessTokenResponse(HttpResponseMessage response)
         {
             // NOTE: We're not tracing responses here because they contain the actual token information
             // from Windows Live.    
-            using (Stream responseStream = response.GetResponseStream())
+            using (Stream responseStream = response.Content.ReadAsStream())
             {
                 // Always start fresh (nulls in all the data we're going to fill in).
                 this.SecurityToken = null;

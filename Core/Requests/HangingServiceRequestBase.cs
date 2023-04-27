@@ -165,7 +165,9 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             lock (this.lockObject)
             {
-                this.response = this.ValidateAndEmitRequest(out this.request);
+	            var (req, resp) = ValidateAndEmitRequest(CancellationToken.None).Result;
+	            response = resp;
+	            request = req;
 
                 this.InternalOnConnect();
             }
@@ -187,7 +189,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 {
                     bool traceEwsResponse = this.Service.IsTraceEnabledFor(TraceFlags.EwsResponse);
 
-                    using (Stream responseStream = this.response.GetResponseStream())
+                    using (Stream responseStream = this.response.GetResponseStream().Result)
                     {
                         responseStream.ReadTimeout = 2 * this.heartbeatFrequencyMilliseconds;
                         tracingStream = new HangingTraceStream(responseStream, this.Service);
@@ -241,7 +243,7 @@ namespace Microsoft.Exchange.WebServices.Data
                     this.Disconnect(HangingRequestDisconnectReason.Exception, ex);
                     return;
                 }
-                catch (WebException ex)
+                catch (EwsHttpException ex)
                 {
                     // Stream is closed, so disconnect.
                     this.Disconnect(HangingRequestDisconnectReason.Exception, ex);

@@ -23,29 +23,28 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
     using System.IO;
     using System.Net;
 
-    /// <summary>
-    /// Represents an implementation of the IEwsHttpWebResponse interface using HttpWebResponse.
-    /// </summary>
-    internal class EwsHttpWebResponse : IEwsHttpWebResponse
+	/// <summary>
+	/// Represents an implementation of the IEwsHttpWebResponse interface using HttpResponseMessage.
+	/// </summary>
+	internal class EwsHttpWebResponse : IEwsHttpWebResponse
     {
-        /// <summary>
-        /// Underlying HttpWebRequest.
-        /// </summary>
-        private HttpWebResponse response;
+        private HttpResponseMessage _response;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EwsHttpWebResponse"/> class.
         /// </summary>
         /// <param name="response">The response.</param>
-        internal EwsHttpWebResponse(HttpWebResponse response)
+        internal EwsHttpWebResponse(HttpResponseMessage response)
         {
-            this.response = response;
+            _response = response;
         }
 
         #region IEwsHttpWebResponse Members
@@ -53,9 +52,9 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Closes the response stream.
         /// </summary>
-        void IEwsHttpWebResponse.Close()
+        public void Close()
         {
-            this.response.Close();
+	        Dispose();
         }
 
         /// <summary>
@@ -64,74 +63,53 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>
         /// A <see cref="T:System.IO.Stream"/> containing the body of the response.
         /// </returns>
-        Stream IEwsHttpWebResponse.GetResponseStream()
+        public async Task<Stream> GetResponseStream()
         {
-            return this.response.GetResponseStream();
+            return await _response.Content.ReadAsStreamAsync();
         }
 
         /// <summary>
         /// Gets the method that is used to encode the body of the response.
         /// </summary>
         /// <returns>A string that describes the method that is used to encode the body of the response.</returns>
-        string IEwsHttpWebResponse.ContentEncoding
-        {
-            get { return this.response.ContentEncoding; }
-        }
+        public string ContentEncoding => _response.Content.Headers.ContentEncoding.FirstOrDefault() ?? "";
 
         /// <summary>
         /// Gets the content type of the response.
         /// </summary>
         /// <returns>A string that contains the content type of the response.</returns>
-        string IEwsHttpWebResponse.ContentType
-        {
-            get { return this.response.ContentType; }
-        }
+        public string ContentType => _response.Content.Headers.ContentType?.ToString();
 
         /// <summary>
         /// Gets the headers that are associated with this response from the server.
         /// </summary>
         /// <returns>A <see cref="T:System.Net.WebHeaderCollection"/> that contains the header information returned with the response.</returns>
-        WebHeaderCollection IEwsHttpWebResponse.Headers
-        {
-            get { return this.response.Headers; }
-        }
+        public HttpResponseHeaders Headers => _response.Headers;
 
         /// <summary>
         /// Gets the URI of the Internet resource that responded to the request.
         /// </summary>
         /// <returns>A <see cref="T:System.Uri"/> that contains the URI of the Internet resource that responded to the request.</returns>
-        Uri IEwsHttpWebResponse.ResponseUri
-        {
-            get { return this.response.ResponseUri; }
-        }
+        public Uri ResponseUri => _response.RequestMessage?.RequestUri;
 
         /// <summary>
         /// Gets the status of the response.
         /// </summary>
         /// <returns>One of the System.Net.HttpStatusCode values.</returns>
-        HttpStatusCode IEwsHttpWebResponse.StatusCode
-        {
-            get { return this.response.StatusCode; }
-        }
+        public HttpStatusCode StatusCode => _response.StatusCode;
 
         /// <summary>
         /// Gets the status description returned with the response.
         /// </summary>
         /// <returns>A string that describes the status of the response.</returns>
-        string IEwsHttpWebResponse.StatusDescription
-        {
-            get { return this.response.StatusDescription; }
-        }
+        public string StatusDescription => _response.ReasonPhrase;
 
         /// <summary>
         /// Gets the version of the HTTP protocol that is used in the response.
         /// </summary>
         /// <value></value>
         /// <returns>System.Version that contains the HTTP protocol version of the response.</returns>
-        Version IEwsHttpWebResponse.ProtocolVersion
-        {
-            get { return this.response.ProtocolVersion; }
-        }
+        public Version ProtocolVersion => _response.Version;
         #endregion
 
         #region IDisposable Members
@@ -139,9 +117,9 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        void IDisposable.Dispose()
+        public void Dispose()
         {
-            this.response.Close();
+            _response.Dispose();
         }
 
         #endregion

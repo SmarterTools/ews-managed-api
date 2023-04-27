@@ -28,77 +28,40 @@ namespace Microsoft.Exchange.WebServices.Data
     using System;
     using System.IO;
     using System.Net;
-    using System.Security.Cryptography.X509Certificates;
+	using System.Net.Http.Headers;
+	using System.Security.Cryptography.X509Certificates;
 
-    /// <summary>
-    /// HttpWebRequest proxy interface.
-    /// </summary>
-    internal interface IEwsHttpWebRequest 
-    {
+	/// <summary>
+	/// HttpWebRequest proxy interface.
+	/// </summary>
+    internal interface IEwsHttpWebRequest : IDisposable
+	{
         /// <summary>
         /// Cancels request to an Internet resource.
         /// </summary>
         void Abort();
+        
+		/// <summary>
+		/// Returns a response from an Internet resource.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the Internet resource.
+		/// </returns>
+		Task<IEwsHttpWebResponse> GetResponseAsync();
 
-        /// <summary>
-        /// Begins an asynchronous request for a <see cref="T:System.IO.Stream"/> object to use to write data.
-        /// </summary>
-        /// <param name="callback">The <see cref="T:System.AsyncCallback"/> delegate.</param>
-        /// <param name="state">The state object for this request.</param>
-        /// <returns>
-        /// An <see cref="T:System.IAsyncResult"/> that references the asynchronous request.
-        /// </returns>
-        IAsyncResult BeginGetRequestStream(AsyncCallback callback, object state);
+		/// <summary>
+		/// Returns a response from an Internet resource.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the Internet resource.
+		/// </returns>
+		Task<IEwsHttpWebResponse> GetResponseAsync(CancellationToken token);
 
-        /// <summary>
-        /// Begins an asynchronous request to an Internet resource.
-        /// </summary>
-        /// <param name="callback">The <see cref="T:System.AsyncCallback"/> delegate</param>
-        /// <param name="state">The state object for this request.</param>
-        /// <returns>
-        /// An <see cref="T:System.IAsyncResult"/> that references the asynchronous request for a response.
-        /// </returns>
-        IAsyncResult BeginGetResponse(AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Ends an asynchronous request for a <see cref="T:System.IO.Stream"/> object to use to write data.
-        /// </summary>
-        /// <param name="asyncResult">The pending request for a stream.</param>
-        /// <returns>
-        /// A <see cref="T:System.IO.Stream"/> to use to write request data.
-        /// </returns>
-        Stream EndGetRequestStream(IAsyncResult asyncResult);
-
-        /// <summary>
-        /// Ends an asynchronous request to an Internet resource.
-        /// </summary>
-        /// <param name="asyncResult">The pending request for a response.</param>
-        /// <returns>
-        /// A <see cref="T:System.Net.WebResponse"/> that contains the response from the Internet resource.
-        /// </returns>
-        IEwsHttpWebResponse EndGetResponse(IAsyncResult asyncResult);
-
-        /// <summary>
-        /// Gets a <see cref="T:System.IO.Stream"/> object to use to write request data.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="T:System.IO.Stream"/> to use to write request data.
-        /// </returns>
-        Stream GetRequestStream();
-
-        /// <summary>
-        /// Returns a response from an Internet resource.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="T:System.Net.HttpWebResponse"/> that contains the response from the Internet resource.
-        /// </returns>
-        IEwsHttpWebResponse GetResponse();
-
-        /// <summary>
-        /// Gets or sets the value of the Accept HTTP header.
-        /// </summary>
-        /// <returns>The value of the Accept HTTP header. The default value is null.</returns>
-        string Accept
+		/// <summary>
+		/// Gets or sets the value of the Accept HTTP header.
+		/// </summary>
+		/// <returns>The value of the Accept HTTP header. The default value is null.</returns>
+		string Accept
         { 
             get; set; 
         }
@@ -121,10 +84,19 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Gets or sets the value of the Content-type HTTP header.
+        /// Gets a or sets the content request content
         /// </summary>
-        /// <returns>The value of the Content-type HTTP header. The default value is null.</returns>
-        string ContentType
+        string Content
+        {
+	        get;
+	        set;
+        }
+
+		/// <summary>
+		/// Gets or sets the value of the Content-type HTTP header.
+		/// </summary>
+		/// <returns>The value of the Content-type HTTP header. The default value is null.</returns>
+		string ContentType
         { 
             get; set; 
         }
@@ -148,13 +120,13 @@ namespace Microsoft.Exchange.WebServices.Data
             set;
         }
 
-        /// <summary>
-        /// Specifies a collection of the name/value pairs that make up the HTTP headers.
-        /// </summary>
-        /// <returns>A <see cref="T:System.Net.WebHeaderCollection"/> that contains the name/value pairs that make up the headers for the HTTP request.</returns>
-        WebHeaderCollection Headers
-        { 
-            get; set; 
+		/// <summary>
+		/// Specifies a collection of the name/value pairs that make up the HTTP headers.
+		/// </summary>
+		/// <returns>A <see cref="T:System.Net.WebHeaderCollection"/> that contains the name/value pairs that make up the headers for the HTTP request.</returns>
+		HttpRequestHeaders Headers
+        {
+	        get;
         }
 
         /// <summary>
@@ -187,7 +159,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Gets the original Uniform Resource Identifier (URI) of the request.
         /// </summary>
-        /// <returns>A <see cref="T:System.Uri"/> that contains the URI of the Internet resource passed to the <see cref="M:System.Net.WebRequest.Create(System.String)"/> method.</returns>
+        /// <returns>A <see cref="T:System.Uri"/> that contains the URI of the Internet resource passed to the <see cref="T:System.Net.Http.HttpRequestMessage"/> initializer.</returns>
         Uri RequestUri
         { 
             get; 

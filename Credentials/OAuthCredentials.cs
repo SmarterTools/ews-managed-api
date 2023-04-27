@@ -111,22 +111,15 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Add the Authorization header to a service request.
+        /// Add the Authorization header to an <see cref="System.Net.Http.HttpClient"/>.
         /// </summary>
-        /// <param name="request">The request</param>
-        internal override void PrepareWebRequest(IEwsHttpWebRequest request)
+        /// <param name="client">The <see cref="System.Net.Http.HttpClient"/>.</param>
+		/// <param name="handler">The <see cref="System.Net.Http.HttpClientHandler"/> for <paramref name="client"/>.</param>
+        internal override void PrepareHttpClient(HttpClient client, HttpClientHandler handler, Uri url)
         {
-            base.PrepareWebRequest(request);
-
-            if (this.token != null)
-            {
-                request.Headers.Remove(HttpRequestHeader.Authorization);
-                request.Headers.Add(HttpRequestHeader.Authorization, this.token);
-            }
-            else
-            {
-                request.Credentials = this.credentials;
-            }
+	        if (client.DefaultRequestHeaders.Contains("Authorization"))
+		        client.DefaultRequestHeaders.Remove("Authorization");
+	        client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", token);
         }
     }
 }

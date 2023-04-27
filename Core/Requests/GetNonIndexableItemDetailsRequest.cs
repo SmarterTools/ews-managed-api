@@ -136,6 +136,15 @@ namespace Microsoft.Exchange.WebServices.Data
             GetNonIndexableItemDetailsResponse serviceResponse = (GetNonIndexableItemDetailsResponse)this.InternalExecute();
             return serviceResponse;
         }
+        /// <summary>
+        /// Executes this request.
+        /// </summary>
+        /// <returns>Service response.</returns>
+        internal async Task<GetNonIndexableItemDetailsResponse> ExecuteAsync()
+        {
+            var serviceResponse = (GetNonIndexableItemDetailsResponse)await InternalExecuteAsync();
+            return serviceResponse;
+        }
 
         /// <summary>
         /// Mailboxes

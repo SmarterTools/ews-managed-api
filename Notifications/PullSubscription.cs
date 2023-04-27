@@ -59,33 +59,20 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Begins an asynchronous request to obtain a collection of events that occurred on the subscribed 
-        /// folders since the point in time defined by the Watermark property.
+        /// Obtains a collection of events that occurred on the subscribed folders since the point
+        /// in time defined by the Watermark property. When GetEvents succeeds, Watermark is updated.
         /// </summary>
-        /// <param name="callback">The AsyncCallback delegate.</param>
-        /// <param name="state">An object that contains state information for this request.</param>
-        /// <returns>An IAsyncResult that references the asynchronous request.</returns>
-        public IAsyncResult BeginGetEvents(AsyncCallback callback, object state)
-        {
-            return this.Service.BeginGetEvents(callback, state, this.Id, this.Watermark);
-        }
-
-        /// <summary>
-        /// Ends an asynchronous request to obtain a collection of events that occurred on the subscribed 
-        /// folders since the point in time defined by the Watermark property. When EndGetEvents succeeds, Watermark is updated.
-        /// </summary>
-        /// <param name="asyncResult">An IAsyncResult that references the asynchronous request.</param>
         /// <returns>Returns a collection of events that occurred since the last watermark.</returns>
-        public GetEventsResults EndGetEvents(IAsyncResult asyncResult)
+        public async Task<GetEventsResults> GetEventsAsync()
         {
-            GetEventsResults results = this.Service.EndGetEvents(asyncResult);
+            var results = await Service.GetEventsAsync(this.Id, this.Watermark);
 
             this.Watermark = results.NewWatermark;
             this.moreEventsAvailable = results.MoreEventsAvailable;
 
             return results;
         }
-
+        
         /// <summary>
         /// Unsubscribes from the pull subscription.
         /// </summary>
@@ -95,25 +82,13 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Begins an asynchronous request to unsubscribe from the pull subscription. 
+        /// Unsubscribes from the pull subscription.
         /// </summary>
-        /// <param name="callback">The AsyncCallback delegate.</param>
-        /// <param name="state">An object that contains state information for this request.</param>
-        /// <returns>An IAsyncResult that references the asynchronous request.</returns>
-        public IAsyncResult BeginUnsubscribe(AsyncCallback callback, object state)
+        public async System.Threading.Tasks.Task UnsubscribeAsync()
         {
-            return this.Service.BeginUnsubscribe(callback, state, this.Id);
+            await Service.UnsubscribeAsync(this.Id);
         }
-
-        /// <summary>
-        /// Ends an asynchronous request to unsubscribe from the pull subscription. 
-        /// </summary>
-        /// <param name="asyncResult">An IAsyncResult that references the asynchronous request.</param>
-        public void EndUnsubscribe(IAsyncResult asyncResult)
-        {
-            this.Service.EndUnsubscribe(asyncResult);
-        }
-
+        
         /// <summary>
         /// Gets a value indicating whether more events are available on the server.
         /// MoreEventsAvailable is undefined (null) until GetEvents is called.

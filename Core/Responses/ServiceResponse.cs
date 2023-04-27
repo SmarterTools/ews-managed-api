@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using System.Net.Http.Headers;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
@@ -219,7 +221,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Reads the headers from a HTTP response
         /// </summary>
         /// <param name="responseHeaders">a collection of response headers</param>
-        internal virtual void ReadHeader(WebHeaderCollection responseHeaders)
+        internal virtual void ReadHeader(HttpResponseHeaders responseHeaders)
         {
         }
 

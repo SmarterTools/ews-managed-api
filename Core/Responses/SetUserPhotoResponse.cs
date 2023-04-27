@@ -58,13 +58,5 @@ namespace Microsoft.Exchange.WebServices.Data
         internal override void ReadElementsFromXml(EwsServiceXmlReader reader)
         {
         }
-
-        /// <summary>
-        /// Read Photo response headers
-        /// </summary>
-        /// <param name="responseHeaders">The response header.</param>
-        internal override void ReadHeader(WebHeaderCollection responseHeaders)
-        {
-        }
     }
 }
