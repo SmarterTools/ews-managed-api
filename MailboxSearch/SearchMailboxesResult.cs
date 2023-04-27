@@ -345,7 +345,6 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Total size
         /// </summary>
-        [CLSCompliant(false)]
         public ulong Size { get; set; }
 
         /// <summary>
@@ -356,7 +355,6 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Total page item size
         /// </summary>
-        [CLSCompliant(false)]
         public ulong PageItemSize { get; set; }
 
         /// <summary>
@@ -457,7 +455,6 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Total size
         /// </summary>
-        [CLSCompliant(false)]
         public ulong Size { get; set; }
 
         /// <summary>

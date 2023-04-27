@@ -47,7 +47,6 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <summary>
         /// Total size
         /// </summary>
-        [CLSCompliant(false)]
         public ulong Size { get; set; }
     }
 }
