@@ -53,9 +53,11 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(Stream stream)
         {
-            XmlTextReader xtr = new XmlTextReader(stream);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
+            var xtr = new XmlTextReader(stream)
+            {
+                DtdProcessing = DtdProcessing.Ignore,
+                XmlResolver = null,
+            };
             return xtr;
         }
 
@@ -66,10 +68,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url)
         {
-            XmlTextReader xtr = new XmlTextReader(url);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(url)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -79,10 +83,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(TextReader input)
         {
-            XmlTextReader xtr = new XmlTextReader(input);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(input)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -93,10 +99,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(Stream input, XmlNameTable nt)
         {
-            XmlTextReader xtr = new XmlTextReader(input, nt);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(input, nt)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -107,10 +115,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url, Stream input)
         {
-            XmlTextReader xtr = new XmlTextReader(url, input);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(url, input)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -121,10 +131,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url, TextReader input)
         {
-            XmlTextReader xtr = new XmlTextReader(url, input);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(url, input)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -135,10 +147,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url, XmlNameTable nt)
         {
-            XmlTextReader xtr = new XmlTextReader(url, nt);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(url, nt)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -149,9 +163,11 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(TextReader input, XmlNameTable nt)
         {
-            XmlTextReader xtr = new XmlTextReader(input, nt);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
+            var xtr = new XmlTextReader(input, nt)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
             return xtr;
         }
 
@@ -164,10 +180,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(Stream xmlFragment, XmlNodeType fragType, XmlParserContext context)
         {
-            XmlTextReader xtr = new XmlTextReader(xmlFragment, fragType, context);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(xmlFragment, fragType, context)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -179,10 +197,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url, Stream input, XmlNameTable nt)
         {
-            XmlTextReader xtr = new XmlTextReader(url, input, nt);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(url, input, nt)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
 
         /// <summary>
@@ -194,9 +214,11 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string url, TextReader input, XmlNameTable nt)
         {
-            XmlTextReader xtr = new XmlTextReader(url, input, nt);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
+            var xtr = new XmlTextReader(url, input, nt)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
             return xtr;
         }
 
@@ -209,10 +231,12 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A new instance of the XmlTextReader class.</returns>
         public static XmlTextReader CreateSafeXmlTextReader(string xmlFragment, XmlNodeType fragType, XmlParserContext context)
         {
-            XmlTextReader xtr = new XmlTextReader(xmlFragment, fragType, context);
-            xtr.ProhibitDtd = true;
-            xtr.XmlResolver = null;
-            return xtr;
+            var xtr = new XmlTextReader(xmlFragment, fragType, context)
+            {
+	            DtdProcessing = DtdProcessing.Ignore,
+	            XmlResolver = null,
+            };
+			return xtr;
         }
         #endregion
 
