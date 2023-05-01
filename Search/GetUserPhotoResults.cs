@@ -68,6 +68,7 @@ namespace Microsoft.Exchange.WebServices.Data
         /// </summary>
         public GetUserPhotoStatus Status { get; internal set; }
 
+        /* The Image class is only available on Windows.
         /// <summary>
         /// Creates an image from the photo data
         /// </summary>
@@ -87,5 +88,6 @@ namespace Microsoft.Exchange.WebServices.Data
 
             return img;
         }
+        */
     }
 }
