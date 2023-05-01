@@ -23,26 +23,22 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-using System.Security.Cryptography;
-
 namespace Microsoft.Exchange.WebServices.Data
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Xml;
-    using Microsoft.Exchange.WebServices.Autodiscover;
-    using Microsoft.Exchange.WebServices.Data.Enumerations;
-    using Microsoft.Exchange.WebServices.Data.Groups;
+	using Microsoft.Exchange.WebServices.Data.Enumerations;
+	using Microsoft.Exchange.WebServices.Data.Groups;
+	using System;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Globalization;
+	using System.IO;
+	using System.Linq;
+	using System.Xml;
 
-    /// <summary>
-    /// Represents a binding to the Exchange Web Services.
-    /// </summary>
-    public sealed class ExchangeService : ExchangeServiceBase
+	/// <summary>
+	/// Represents a binding to the Exchange Web Services.
+	/// </summary>
+	public sealed class ExchangeService : ExchangeServiceBase
     {
         #region Constants
 
@@ -4841,79 +4837,7 @@ namespace Microsoft.Exchange.WebServices.Data
         #endregion
 
         #region Autodiscover
-
-        /// <summary>
-        /// Default implementation of AutodiscoverRedirectionUrlValidationCallback.
-        /// Always returns true indicating that the URL can be used.
-        /// </summary>
-        /// <param name="redirectionUrl">The redirection URL.</param>
-        /// <returns>Returns true.</returns>
-        private bool DefaultAutodiscoverRedirectionUrlValidationCallback(string redirectionUrl)
-        {
-            throw new AutodiscoverLocalException(string.Format(Strings.AutodiscoverRedirectBlocked, redirectionUrl));
-        }
-
-        /// <summary>
-        /// Initializes the Url property to the Exchange Web Services URL for the specified e-mail address by
-        /// calling the Autodiscover service.
-        /// </summary>
-        /// <param name="emailAddress">The email address to use.</param>
-        public void AutodiscoverUrl(string emailAddress)
-        {
-            this.AutodiscoverUrl(emailAddress, this.DefaultAutodiscoverRedirectionUrlValidationCallback);
-        }
-
-        /// <summary>
-        /// Initializes the Url property to the Exchange Web Services URL for the specified e-mail address by
-        /// calling the Autodiscover service.
-        /// </summary>
-        /// <param name="emailAddress">The email address to use.</param>
-        /// <param name="validateRedirectionUrlCallback">The callback used to validate redirection URL.</param>
-        public void AutodiscoverUrl(string emailAddress, AutodiscoverRedirectionUrlValidationCallback validateRedirectionUrlCallback)
-        {
-            Uri exchangeServiceUrl;
-
-            if (this.RequestedServerVersion > ExchangeVersion.Exchange2007_SP1)
-            {
-                try
-                {
-                    exchangeServiceUrl = this.GetAutodiscoverUrl(
-                        emailAddress,
-                        this.RequestedServerVersion,
-                        validateRedirectionUrlCallback);
-
-                    this.Url = this.AdjustServiceUriFromCredentials(exchangeServiceUrl);
-                    return;
-                }
-                catch (AutodiscoverLocalException ex)
-                {
-                    this.TraceMessage(
-                        TraceFlags.AutodiscoverResponse,
-                        string.Format("Autodiscover service call failed with error '{0}'. Will try legacy service", ex.Message));
-                }
-                catch (ServiceRemoteException ex)
-                {
-                    // Special case: if the caller's account is locked we want to return this exception, not continue.
-                    if (ex is AccountIsLockedException)
-                    {
-                        throw;
-                    }
-
-                    this.TraceMessage(
-                        TraceFlags.AutodiscoverResponse,
-                        string.Format("Autodiscover service call failed with error '{0}'. Will try legacy service", ex.Message));
-                }
-            }
-
-            // Try legacy Autodiscover provider
-            exchangeServiceUrl = this.GetAutodiscoverUrl(
-                emailAddress,
-                ExchangeVersion.Exchange2007_SP1,
-                validateRedirectionUrlCallback);
-
-            this.Url = this.AdjustServiceUriFromCredentials(exchangeServiceUrl);
-        }
-
+        
         /// <summary>
         /// Adjusts the service URI based on the current type of credentials.
         /// </summary>
@@ -4929,82 +4853,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 ? this.Credentials.AdjustUrl(uri)
                 : uri;
         }
-
-        /// <summary>
-        /// Gets the EWS URL from Autodiscover.
-        /// </summary>
-        /// <param name="emailAddress">The email address.</param>
-        /// <param name="requestedServerVersion">Exchange version.</param>
-        /// <param name="validateRedirectionUrlCallback">The validate redirection URL callback.</param>
-        /// <returns>Ews URL</returns>
-        private Uri GetAutodiscoverUrl(
-            string emailAddress,
-            ExchangeVersion requestedServerVersion,
-            AutodiscoverRedirectionUrlValidationCallback validateRedirectionUrlCallback)
-        {
-            AutodiscoverService autodiscoverService = new AutodiscoverService(this, requestedServerVersion)
-            {
-                RedirectionUrlValidationCallback = validateRedirectionUrlCallback,
-                EnableScpLookup = this.EnableScpLookup
-            };
-
-            GetUserSettingsResponse response = autodiscoverService.GetUserSettings(
-                emailAddress,
-                UserSettingName.InternalEwsUrl,
-                UserSettingName.ExternalEwsUrl);
-
-            switch (response.ErrorCode)
-            {
-                case AutodiscoverErrorCode.NoError:
-                    return this.GetEwsUrlFromResponse(response, autodiscoverService.IsExternal.GetValueOrDefault(true));
-
-                case AutodiscoverErrorCode.InvalidUser:
-                    throw new ServiceRemoteException(
-                        string.Format(Strings.InvalidUser, emailAddress));
-
-                case AutodiscoverErrorCode.InvalidRequest:
-                    throw new ServiceRemoteException(
-                        string.Format(Strings.InvalidAutodiscoverRequest, response.ErrorMessage));
-
-                default:
-                    this.TraceMessage(
-                        TraceFlags.AutodiscoverConfiguration,
-                        string.Format("No EWS Url returned for user {0}, error code is {1}", emailAddress, response.ErrorCode));
-
-                    throw new ServiceRemoteException(response.ErrorMessage);
-            }
-        }
-
-        /// <summary>
-        /// Gets the EWS URL from Autodiscover GetUserSettings response.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        /// <param name="isExternal">If true, Autodiscover call was made externally.</param>
-        /// <returns>EWS URL.</returns>
-        private Uri GetEwsUrlFromResponse(GetUserSettingsResponse response, bool isExternal)
-        {
-            string uriString;
-
-            // Figure out which URL to use: Internal or External.
-            // AutoDiscover may not return an external protocol. First try external, then internal.
-            // Either protocol may be returned without a configured URL.
-            if ((isExternal &&
-                response.TryGetSettingValue<string>(UserSettingName.ExternalEwsUrl, out uriString)) &&
-                !string.IsNullOrEmpty(uriString))
-            {
-                return new Uri(uriString);
-            }
-            else if ((response.TryGetSettingValue<string>(UserSettingName.InternalEwsUrl, out uriString) ||
-                     response.TryGetSettingValue<string>(UserSettingName.ExternalEwsUrl, out uriString)) &&
-                     !string.IsNullOrEmpty(uriString))
-            {
-                return new Uri(uriString);
-            }
-
-            // If Autodiscover doesn't return an internal or external EWS URL, throw an exception.
-            throw new AutodiscoverLocalException(Strings.AutodiscoverDidNotReturnEwsUrl);
-        }
-
+        
         #endregion
 
         #region ClientAccessTokens
