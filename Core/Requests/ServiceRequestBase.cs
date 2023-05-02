@@ -396,6 +396,7 @@ namespace Microsoft.Exchange.WebServices.Data
             using var memStream = new MemoryStream();
             using var writer = new EwsServiceXmlWriter(Service, memStream);
             WriteToXml(writer);
+            writer.Flush();
 
             memStream.Position = 0;
 
@@ -411,28 +412,27 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <param name="needTrace"></param>
         private void TraceAndEmitRequest(IEwsHttpWebRequest request, bool needSignature, bool needTrace)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                using (EwsServiceXmlWriter writer = new EwsServiceXmlWriter(this.Service, memoryStream))
-                {
-                    writer.RequireWSSecurityUtilityNamespace = needSignature;
-                    this.WriteToXml(writer);
-                }
+	        using var memoryStream = new MemoryStream();
+	        using (var writer = new EwsServiceXmlWriter(this.Service, memoryStream))
+	        {
+		        writer.RequireWSSecurityUtilityNamespace = needSignature;
+		        this.WriteToXml(writer);
+                writer.Flush();
+	        }
 
-                if (needSignature)
-                {
-                    this.service.Credentials.Sign(memoryStream);
-                }
+	        if (needSignature)
+	        {
+		        this.service.Credentials.Sign(memoryStream);
+	        }
 
-                if (needTrace)
-                {
-                    this.TraceXmlRequest(memoryStream);
-                }
+	        if (needTrace)
+	        {
+		        this.TraceXmlRequest(memoryStream);
+	        }
 
-                memoryStream.Position = 0;
-                using var reader = new StreamReader(memoryStream, Encoding.UTF8, false, 4096, true);
-                request.Content = reader.ReadToEnd();
-            }
+	        memoryStream.Position = 0;
+	        using var reader = new StreamReader(memoryStream, Encoding.UTF8, false, 4096, true);
+	        request.Content = reader.ReadToEnd();
         }
         
         /// <summary>
