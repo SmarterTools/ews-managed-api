@@ -35,7 +35,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// Represents the response to a item search operation.
     /// </summary>
     /// <typeparam name="TItem">The type of items that the opeartion returned.</typeparam>
-    internal sealed class FindItemResponse<TItem> : ServiceResponse
+    public sealed class FindItemResponse<TItem> : ServiceResponse
         where TItem : Item
     {
         private FindItemsResults<TItem> results;

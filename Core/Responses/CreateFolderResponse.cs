@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to an individual folder creation operation.
     /// </summary>
-    internal sealed class CreateFolderResponse : ServiceResponse
+    public sealed class CreateFolderResponse : ServiceResponse
     {
         private Folder folder;
 

@@ -28,7 +28,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to a GetInboxRules operation.
     /// </summary>
-    internal sealed class GetInboxRulesResponse : ServiceResponse
+    public sealed class GetInboxRulesResponse : ServiceResponse
     {
         /// <summary>
         /// Rule collection.

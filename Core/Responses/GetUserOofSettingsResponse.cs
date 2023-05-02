@@ -29,10 +29,10 @@ namespace Microsoft.Exchange.WebServices.Data
     using System.Collections.Generic;
     using System.Text;
 
-    /// <summary>
-    /// Represents response to GetUserOofSettings request.
-    /// </summary>
-    internal sealed class GetUserOofSettingsResponse : ServiceResponse
+	/// <summary>
+	/// Represents response to GetUserOofSettings request.
+	/// </summary>
+	public sealed class GetUserOofSettingsResponse : ServiceResponse
     {
         private OofSettings oofSettings;
 

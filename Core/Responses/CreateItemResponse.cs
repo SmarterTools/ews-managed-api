@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to an individual item creation operation.
     /// </summary>
-    internal sealed class CreateItemResponse : CreateItemResponseBase
+    public sealed class CreateItemResponse : CreateItemResponseBase
     {
         private Item item;
 

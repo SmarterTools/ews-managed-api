@@ -33,7 +33,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to a Conversation search operation.
     /// </summary>
-    internal sealed class FindConversationResponse : ServiceResponse
+    public sealed class FindConversationResponse : ServiceResponse
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FindConversationResponse"/> class.

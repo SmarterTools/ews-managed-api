@@ -31,7 +31,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents a response to a GetUserConfiguration request.
     /// </summary>
-    internal sealed class GetUserConfigurationResponse : ServiceResponse
+    public sealed class GetUserConfigurationResponse : ServiceResponse
     {
         private UserConfiguration userConfiguration;
 

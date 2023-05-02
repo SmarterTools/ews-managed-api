@@ -34,7 +34,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// Represents the base response class for item creation operations.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal abstract class CreateItemResponseBase : ServiceResponse
+    public abstract class CreateItemResponseBase : ServiceResponse
     {
         private List<Item> items;
 

@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to a Persona search operation.
     /// </summary>
-    internal sealed class FindPeopleResponse : ServiceResponse
+    public sealed class FindPeopleResponse : ServiceResponse
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FindPeopleResponse"/> class.

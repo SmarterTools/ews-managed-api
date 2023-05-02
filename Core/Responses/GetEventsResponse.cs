@@ -32,7 +32,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to a subscription event retrieval operation.
     /// </summary>
-    internal sealed class GetEventsResponse : ServiceResponse
+    public sealed class GetEventsResponse : ServiceResponse
     {
         private GetEventsResults results = new GetEventsResults();
 

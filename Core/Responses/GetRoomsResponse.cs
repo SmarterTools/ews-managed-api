@@ -33,7 +33,7 @@ namespace Microsoft.Exchange.WebServices.Data
     /// <summary>
     /// Represents the response to a GetRooms operation.
     /// </summary>
-    internal sealed class GetRoomsResponse : ServiceResponse
+    public sealed class GetRoomsResponse : ServiceResponse
     {
         private Collection<EmailAddress> rooms = new Collection<EmailAddress>();
 
