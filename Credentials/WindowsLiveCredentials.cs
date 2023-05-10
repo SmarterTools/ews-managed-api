@@ -265,7 +265,7 @@ namespace Microsoft.Exchange.WebServices.Data
             message.Content = new ByteArrayContent(requestBytes);
             message.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml", "utf-8");
 
-            return httpClient.Send(message);
+            return httpClient.SendAsync(message).Result;
         }
 
         /// <summary>
