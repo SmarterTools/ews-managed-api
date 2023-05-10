@@ -54,7 +54,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string Title
         {
             get { return this.title; }
-            set => this.title = value;
         }
 
         /// <summary>
@@ -63,7 +62,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string GivenName
         {
             get { return this.givenName; }
-            set => this.givenName = value;
         }
 
         /// <summary>
@@ -72,7 +70,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string MiddleName
         {
             get { return this.middleName; }
-			set => this.middleName = value;
         }
 
         /// <summary>
@@ -81,7 +78,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string Surname
         {
             get { return this.surname; }
-			set => this.surname = value;
         }
 
         /// <summary>
@@ -90,7 +86,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string Suffix
         {
             get { return this.suffix; }
-			set => this.suffix = value;
         }
 
         /// <summary>
@@ -99,7 +94,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string Initials
         {
             get { return this.initials; }
-			set => this.initials = value;
         }
 
         /// <summary>
@@ -108,7 +102,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string FullName
         {
             get { return this.fullName; }
-			set => this.fullName = value;
         }
 
         /// <summary>
@@ -117,7 +110,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string NickName
         {
             get { return this.nickname; }
-			set => this.nickname = value;
         }
 
         /// <summary>
@@ -126,7 +118,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string YomiGivenName
         {
             get { return this.yomiGivenName; }
-			set => this.yomiGivenName = value;
         }
 
         /// <summary>
@@ -135,7 +126,6 @@ namespace Microsoft.Exchange.WebServices.Data
         public string YomiSurname
         {
             get { return this.yomiSurname; }
-			set => this.yomiSurname = value;
         }
 
         #endregion
