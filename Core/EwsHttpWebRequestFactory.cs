@@ -35,14 +35,15 @@ namespace Microsoft.Exchange.WebServices.Data
     {
         #region IEwsHttpWebRequestFactory Members
 
-        /// <summary>
-        /// Create a new instance of <see cref="EwsHttpWebRequest"/>.
-        /// </summary>
-        /// <param name="uri">The service URI.</param>
-        /// <returns>An instance of <see cref="IEwsHttpWebRequest"/>./// </returns>
-        IEwsHttpWebRequest IEwsHttpWebRequestFactory.CreateRequest(Uri uri)
+		/// <summary>
+		/// Create a new instance of <see cref="EwsHttpWebRequest"/>.
+		/// </summary>
+		/// <param name="uri">The service URI.</param>
+		/// <param name="ignoreSslCertErrors">Indicates whether the <see cref="IEwsHttpWebRequest"/> should fail if there are SSL certificate errors.</param>
+		/// <returns>An instance of <see cref="IEwsHttpWebRequest"/>./// </returns>
+		IEwsHttpWebRequest IEwsHttpWebRequestFactory.CreateRequest(Uri uri, bool ignoreSslCertErrors)
         {
-            return new EwsHttpWebRequest(uri);
+            return new EwsHttpWebRequest(uri, ignoreSslCertErrors);
         }
 
 		/// <summary>

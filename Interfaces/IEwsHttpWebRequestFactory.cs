@@ -33,14 +33,15 @@ namespace Microsoft.Exchange.WebServices.Data
     /// </summary>
     internal interface IEwsHttpWebRequestFactory
     {
-        /// <summary>
-        /// Create a new instance of class that implements the <see cref="IEwsHttpWebRequest"/> interface.
-        /// </summary>
-        /// <param name="uri">The URI.</param>
-        /// <returns>
-        /// An object that implements the <see cref="IEwsHttpWebRequest"/> interface.
-        /// </returns>
-        IEwsHttpWebRequest CreateRequest(Uri uri);
+		/// <summary>
+		/// Create a new instance of class that implements the <see cref="IEwsHttpWebRequest"/> interface.
+		/// </summary>
+		/// <param name="uri">The URI.</param>
+		/// <param name="ignoreSslCertErrors">Indicates whether the <see cref="IEwsHttpWebRequest"/> should fail if there are SSL certificate errors.</param>
+		/// <returns>
+		/// An object that implements the <see cref="IEwsHttpWebRequest"/> interface.
+		/// </returns>
+		IEwsHttpWebRequest CreateRequest(Uri uri, bool ignoreSslCertErrors);
 
         /// <summary>
         /// Creates the exception response.

@@ -43,8 +43,13 @@ namespace Microsoft.Exchange.WebServices.Data
 
 		private volatile bool _isDisposed = false;
 		private string _method;
-
-
+		
+		internal EwsHttpWebRequest(Uri uri, bool ignoreSslErrors)
+			: this(uri)
+		{
+			if (ignoreSslErrors)
+				_clientHandler.ServerCertificateCustomValidationCallback += (message, certificate2, arg3, arg4) => true;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="EwsHttpWebRequest"/> class.

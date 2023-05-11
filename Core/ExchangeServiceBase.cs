@@ -138,7 +138,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 throw new ServiceLocalException(string.Format(Strings.UnsupportedWebProtocol, url.Scheme));
             }
 
-            IEwsHttpWebRequest request = this.HttpWebRequestFactory.CreateRequest(url);
+            IEwsHttpWebRequest request = this.HttpWebRequestFactory.CreateRequest(url, IgnoreSslCertificateErrors);
 
             request.PreAuthenticate = this.PreAuthenticate;
             request.Timeout = this.Timeout;
@@ -566,6 +566,11 @@ namespace Microsoft.Exchange.WebServices.Data
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets a boolean property indicating SSL Certificate errors should be ignored.
+        /// </summary>
+        public bool IgnoreSslCertificateErrors { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the cookie container.
