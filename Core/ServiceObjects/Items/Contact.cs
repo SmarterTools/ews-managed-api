@@ -292,7 +292,16 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Gets or sets the compnay name of the contact.
+        /// Gets the gender of the contact
+        /// </summary>
+        public string Gender
+		{
+			get { return (string)this.PropertyBag[ContactSchema.Gender]; }
+			set { this.PropertyBag[ContactSchema.Gender] = value; }
+		}
+
+        /// <summary>
+        /// Gets or sets the company name of the contact.
         /// </summary>
         public string CompanyName
         {

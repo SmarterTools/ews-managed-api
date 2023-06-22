@@ -250,6 +250,7 @@ namespace Microsoft.Exchange.WebServices.Data
         public const string MiddleName = "MiddleName";
         public const string NickName = "Nickname";
         public const string CompleteName = "CompleteName";
+        public const string Gender = "Gender";
         public const string CompanyName = "CompanyName";
         public const string EmailAddresses = "EmailAddresses";
         public const string PhysicalAddresses = "PhysicalAddresses";

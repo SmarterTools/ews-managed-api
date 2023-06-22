@@ -46,6 +46,7 @@ namespace Microsoft.Exchange.WebServices.Data
             public const string MiddleName = "contacts:MiddleName";
             public const string NickName = "contacts:Nickname";
             public const string CompleteName = "contacts:CompleteName";
+            public const string Gender = "contacts:Gender";
             public const string CompanyName = "contacts:CompanyName";
             public const string EmailAddress = "contacts:EmailAddress";
             public const string EmailAddresses = "contacts:EmailAddresses";
@@ -178,6 +179,17 @@ namespace Microsoft.Exchange.WebServices.Data
                 PropertyDefinitionFlags.CanFind,
                 ExchangeVersion.Exchange2007_SP1,
                 delegate() { return new CompleteName(); });
+
+        /// <summary>
+        /// Defines the CompleteName property.
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Immutable type")]
+        public static readonly PropertyDefinition Gender =
+            new StringPropertyDefinition(
+                XmlElementNames.Gender,
+                FieldUris.Gender,
+                PropertyDefinitionFlags.CanFind,
+                ExchangeVersion.Exchange2015);
 
         /// <summary>
         /// Defines the CompanyName property.
@@ -896,6 +908,7 @@ namespace Microsoft.Exchange.WebServices.Data
             this.RegisterProperty(MiddleName);
             this.RegisterProperty(NickName);
             this.RegisterProperty(CompleteName);
+            this.RegisterProperty(Gender);
             this.RegisterProperty(CompanyName);
             this.RegisterProperty(EmailAddresses);
             this.RegisterProperty(PhysicalAddresses);
