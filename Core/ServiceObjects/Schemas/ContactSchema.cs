@@ -188,7 +188,7 @@ namespace Microsoft.Exchange.WebServices.Data
             new StringPropertyDefinition(
                 XmlElementNames.Gender,
                 FieldUris.Gender,
-                PropertyDefinitionFlags.CanFind,
+                PropertyDefinitionFlags.CanSet | PropertyDefinitionFlags.CanUpdate | PropertyDefinitionFlags.CanDelete | PropertyDefinitionFlags.CanFind,
                 ExchangeVersion.Exchange2015);
 
         /// <summary>
