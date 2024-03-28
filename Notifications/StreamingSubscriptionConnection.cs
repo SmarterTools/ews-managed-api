@@ -70,12 +70,16 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <param name="args">The event data.</param>
         public delegate void NotificationEventDelegate(object sender, NotificationEventArgs args);
 
+        public delegate void HeartbeatEventDelegate(object sender);
+
         /// <summary>
         /// Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
         /// </summary>
         /// <param name="sender">The StreamingSubscriptionConnection instance within which the error occurred.</param>
         /// <param name="args">The event data.</param>
         public delegate void SubscriptionErrorDelegate(object sender, SubscriptionErrorEventArgs args);
+
+        public event HeartbeatEventDelegate OnHeartbeatEvent;
 
         /// <summary>
         /// Occurs when notifications are received from the server.
@@ -327,6 +331,7 @@ namespace Microsoft.Exchange.WebServices.Data
                     else
                     {
                         //// This was just a heartbeat, nothing to do here.
+                        this.IssueHeartbeatEvents(gseResponse);
                     }
                 }
                 else if (gseResponse.Result == ServiceResult.Error)
@@ -408,6 +413,11 @@ namespace Microsoft.Exchange.WebServices.Data
             {
                 this.OnSubscriptionError(this, eventArgs);
             }
+        }
+
+        private void IssueHeartbeatEvents(GetStreamingEventsResponse gseResponse)
+        {
+	        this.OnHeartbeatEvent?.Invoke(this);
         }
 
         /// <summary>

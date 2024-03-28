@@ -50,12 +50,27 @@ namespace Microsoft.Exchange.WebServices.Data
 		Task<IEwsHttpWebResponse> GetResponseAsync();
 
 		/// <summary>
+		/// Returns a response from an internet resource.
+		/// </summary>
+		/// <param name="completionOption">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
+		Task<IEwsHttpWebResponse> GetResponseAsync(HttpCompletionOption completionOption);
+
+		/// <summary>
 		/// Returns a response from an Internet resource.
 		/// </summary>
 		/// <returns>
 		/// A <see cref="T:Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the Internet resource.
 		/// </returns>
 		Task<IEwsHttpWebResponse> GetResponseAsync(CancellationToken token);
+
+		/// <summary>
+		/// Returns a response from an internet resource.
+		/// </summary>
+		/// <param name="completionOption"></param>
+		/// <param name="token">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
+		Task<IEwsHttpWebResponse> GetResponseAsync(HttpCompletionOption completionOption, CancellationToken token);
 
 		/// <summary>
 		/// Gets or sets the value of the Accept HTTP header.

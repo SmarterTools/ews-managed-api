@@ -74,6 +74,8 @@ namespace Microsoft.Exchange.WebServices.Data
            set;
         }
 
+        protected virtual HttpCompletionOption CompletionOption => HttpCompletionOption.ResponseContentRead;
+
         /// <summary>
         /// Maintains the collection of client side statistics for requests already completed
         /// </summary>
@@ -714,7 +716,7 @@ namespace Microsoft.Exchange.WebServices.Data
         {
             try
             {
-                return await request.GetResponseAsync();
+                return await request.GetResponseAsync(CompletionOption);
             }
             catch (EwsHttpException ex)
             {

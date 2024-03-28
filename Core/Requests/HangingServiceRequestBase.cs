@@ -94,6 +94,8 @@ namespace Microsoft.Exchange.WebServices.Data
     /// </summary>
     internal abstract class HangingServiceRequestBase : ServiceRequestBase
     {
+        protected override HttpCompletionOption CompletionOption => HttpCompletionOption.ResponseHeadersRead;
+
         /// <summary>
         /// Callback delegate to handle asynchronous responses.
         /// </summary>
@@ -191,7 +193,6 @@ namespace Microsoft.Exchange.WebServices.Data
 
                     using (Stream responseStream = this.response.GetResponseStream().Result)
                     {
-                        responseStream.ReadTimeout = 2 * this.heartbeatFrequencyMilliseconds;
                         tracingStream = new HangingTraceStream(responseStream, this.Service);
 
                         // EwsServiceMultiResponseXmlReader.Create causes a read.

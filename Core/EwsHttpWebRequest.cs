@@ -80,15 +80,36 @@ namespace Microsoft.Exchange.WebServices.Data
 		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
 		public async Task<IEwsHttpWebResponse> GetResponseAsync()
 		{
-			return await GetResponseAsync(CancellationToken.None);
+			return await GetResponseAsync(HttpCompletionOption.ResponseContentRead, CancellationToken.None);
 		}
-
+		
+		/// <summary>
+		/// Returns a response from an internet resource.
+		/// </summary>
+		/// <param name="completionOption">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
+		public async Task<IEwsHttpWebResponse> GetResponseAsync(HttpCompletionOption completionOption)
+		{
+			return await GetResponseAsync(completionOption, CancellationToken.None);
+		}
+		
 		/// <summary>
 		/// Returns a response from an internet resource.
 		/// </summary>
 		/// <param name="token">A cancellation token</param>
 		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
 		public async Task<IEwsHttpWebResponse> GetResponseAsync(CancellationToken token)
+		{
+			return await GetResponseAsync(HttpCompletionOption.ResponseContentRead, token);
+		}
+
+		/// <summary>
+		/// Returns a response from an internet resource.
+		/// </summary>
+		/// <param name="completionOption"></param>
+		/// <param name="token">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+		/// <returns>A <see cref="Microsoft.Exchange.WebServices.Data.IEwsHttpWebResponse"/> that contains the response from the internet resource.</returns>
+		public async Task<IEwsHttpWebResponse> GetResponseAsync(HttpCompletionOption completionOption, CancellationToken token)
 		{
 			var message = new HttpRequestMessage(new HttpMethod(Method), RequestUri);
 			message.Content = new StringContent(Content);
@@ -114,7 +135,7 @@ namespace Microsoft.Exchange.WebServices.Data
 			HttpResponseMessage response = null;
 			try
 			{
-				response = await _httpClient.SendAsync(message, token);
+				response = await _httpClient.SendAsync(message, completionOption, token);
 			}
 			catch (Exception e)
 			{
