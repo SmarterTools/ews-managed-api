@@ -112,7 +112,7 @@ namespace Microsoft.Exchange.WebServices.Data
         }
 
         /// <summary>
-        /// Initializes this transition group based on the specified asjustment rule.
+        /// Initializes this transition group based on the specified adjustment rule.
         /// </summary>
         /// <param name="adjustmentRule">The adjustment rule to initialize from.</param>
         /// <param name="standardPeriod">A reference to the pre-created standard period.</param>
@@ -123,10 +123,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 // If the time zone info doesn't support Daylight Saving Time, we just need to
                 // create one transition to one group with one transition to the standard period.
                 TimeZonePeriod standardPeriodToSet = new TimeZonePeriod();
-                standardPeriodToSet.Id = string.Format(
-                    "{0}/{1}",
-                    standardPeriod.Id,
-                    adjustmentRule.DateStart.Year);
+                standardPeriodToSet.Id = $"{standardPeriod.Id}/{adjustmentRule.DateStart:MMyyyy}";
                 standardPeriodToSet.Name = standardPeriod.Name;
                 standardPeriodToSet.Bias = standardPeriod.Bias;
                 this.timeZoneDefinition.Periods.Add(standardPeriodToSet.Id, standardPeriodToSet);
@@ -139,10 +136,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 TimeZonePeriod daylightPeriod = new TimeZonePeriod();
 
                 // Generate an Id of the form "Daylight/2008"
-                daylightPeriod.Id = string.Format(
-                    "{0}/{1}",
-                    TimeZonePeriod.DaylightPeriodId,
-                    adjustmentRule.DateStart.Year);
+                daylightPeriod.Id = $"{TimeZonePeriod.DaylightPeriodId}/{adjustmentRule.DateStart:MMyyyy}";
                 daylightPeriod.Name = TimeZonePeriod.DaylightPeriodName;
                 daylightPeriod.Bias = standardPeriod.Bias - adjustmentRule.DaylightDelta;
 
@@ -154,10 +148,7 @@ namespace Microsoft.Exchange.WebServices.Data
                     adjustmentRule.DaylightTransitionStart);
 
                 TimeZonePeriod standardPeriodToSet = new TimeZonePeriod();
-                standardPeriodToSet.Id = string.Format(
-                    "{0}/{1}",
-                    standardPeriod.Id,
-                    adjustmentRule.DateStart.Year);
+                standardPeriodToSet.Id = $"{standardPeriod.Id}/{adjustmentRule.DateStart:MMyyyy}";
                 standardPeriodToSet.Name = standardPeriod.Name;
                 standardPeriodToSet.Bias = standardPeriod.Bias;
                 this.timeZoneDefinition.Periods.Add(standardPeriodToSet.Id, standardPeriodToSet);
