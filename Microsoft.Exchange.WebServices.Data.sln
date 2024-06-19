@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Exchange.WebServices.Data.NET7", "Microsoft.Exchange.WebServices.Data.NET7.csproj", "{E93A0E5E-8DEF-409A-BBE6-6D466E31AC97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Exchange.WebServices.Data", "Microsoft.Exchange.WebServices.Data.csproj", "{B1C80083-6AC2-4CC6-923D-BB0306BAC239}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E93A0E5E-8DEF-409A-BBE6-6D466E31AC97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E93A0E5E-8DEF-409A-BBE6-6D466E31AC97}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E93A0E5E-8DEF-409A-BBE6-6D466E31AC97}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E93A0E5E-8DEF-409A-BBE6-6D466E31AC97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1C80083-6AC2-4CC6-923D-BB0306BAC239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1C80083-6AC2-4CC6-923D-BB0306BAC239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1C80083-6AC2-4CC6-923D-BB0306BAC239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1C80083-6AC2-4CC6-923D-BB0306BAC239}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
