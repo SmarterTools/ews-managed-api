@@ -110,6 +110,21 @@ namespace Microsoft.Exchange.WebServices.Data
             this.credentials = credentials;
         }
 
+		internal override void PrepareWebRequest(IEwsHttpWebRequest request)
+		{
+			base.PrepareWebRequest(request);
+
+			if (this.token != null)
+			{
+				request.Headers.Remove("Authorization");
+				request.Headers.Add("Authorization", this.token);
+			}
+			else
+			{
+				request.Credentials = this.credentials;
+			}
+		}
+
         /// <summary>
         /// Add the Authorization header to an <see cref="System.Net.Http.HttpClient"/>.
         /// </summary>
