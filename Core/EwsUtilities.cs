@@ -900,16 +900,22 @@ namespace Microsoft.Exchange.WebServices.Data
             // Optional '-' offset
             string offsetStr = (timeSpan.TotalSeconds < 0) ? "-" : string.Empty;
 
-            // The TimeSpan structure does not have a Year or Month 
-            // property, therefore we wouldn't be able to return an xs:duration
-            // string from a TimeSpan that included the nY or nM components.
-            return String.Format(
+            // Prepare the duration components
+            string duration = String.Format(
                 "{0}P{1}DT{2}H{3}M{4}S",
                 offsetStr,
                 Math.Abs(timeSpan.Days),
                 Math.Abs(timeSpan.Hours),
                 Math.Abs(timeSpan.Minutes),
-                Math.Abs(timeSpan.Seconds) + "." + Math.Abs(timeSpan.Milliseconds));
+                Math.Abs(timeSpan.Seconds));
+
+            // Add milliseconds only if they are greater than zero
+            if (Math.Abs(timeSpan.Milliseconds) > 0)
+            {
+                duration += "." + Math.Abs(timeSpan.Milliseconds);
+            }
+
+            return duration;
         }
 
         /// <summary>
