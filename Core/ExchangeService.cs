@@ -4833,6 +4833,28 @@ namespace Microsoft.Exchange.WebServices.Data
             return request.Execute();
         }
 
+        public List<TimeZoneInfo> GetServerTimeZones(params string[] timeZoneIds)
+        {
+            var request = new GetServerTimeZonesRequest(this)
+            {
+                Ids = timeZoneIds
+            };
+
+            var responses = request.Execute();
+            return responses.SelectMany(x => x.TimeZones).ToList();
+        }
+        
+        public async Task<List<TimeZoneInfo>> GetServerTimeZonesAsync(params string[] timeZoneIds)
+        {
+            var request = new GetServerTimeZonesRequest(this)
+            {
+                Ids = timeZoneIds
+            };
+
+            var responses = request.ExecuteAsync();
+            return (await responses).SelectMany(x => x.TimeZones).ToList();
+        }
+        
         #endregion
 
         #region Autodiscover
