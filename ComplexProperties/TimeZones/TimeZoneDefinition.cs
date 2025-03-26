@@ -23,6 +23,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+using Microsoft.Exchange.WebServices.Data.Exceptions;
+
 namespace Microsoft.Exchange.WebServices.Data
 {
     using System;
@@ -392,6 +394,13 @@ namespace Microsoft.Exchange.WebServices.Data
             if (this.periods.Count < 1 || this.transitions.Count < 1 || this.transitionGroups.Count < 1 ||
                 this.transitionGroups.Count != this.transitions.Count)
             {
+                if (this.periods.Count == 0 && this.transitions.Count == 0 && this.transitionGroups.Count == 0)
+                {
+                    if (string.IsNullOrEmpty(this.id))
+                        throw new ServiceLocalException(Strings.InvalidOrUnsupportedTimeZoneDefinition);
+                    throw new AttributesOnlyTimeZoneException();
+                }
+                
                 throw new ServiceLocalException(Strings.InvalidOrUnsupportedTimeZoneDefinition);
             }
 
@@ -432,10 +441,25 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <returns>A TimeZoneInfo representing the same time zone as this definition.</returns>
         public TimeZoneInfo ToTimeZoneInfo(ExchangeService service)
         {
-            this.Validate();
+            var attributesOnly = false;
+            try
+            {
+                this.Validate();
+            }
+            catch (AttributesOnlyTimeZoneException)
+            {
+                attributesOnly = true;
+            }
 
             TimeZoneInfo result;
 
+            if (attributesOnly)
+            {
+                if (TimeZoneInfo.TryFindSystemTimeZoneById(this.id, out result))
+                    return result;
+                throw new ServiceLocalException(Strings.InvalidOrUnsupportedTimeZoneDefinition);
+            }
+            
             // Retrieve the base offset to UTC, standard and daylight display names from
             // the last transition group, which is the one that currently applies given that
             // transitions are ordered chronologically.
