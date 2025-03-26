@@ -43,6 +43,12 @@ namespace Microsoft.Exchange.WebServices.Data
         public static readonly PropertySet IdOnly = PropertySet.CreateReadonlyPropertySet(BasePropertySet.IdOnly);
 
         /// <summary>
+        /// Returns a predefined property set that includes the default properties of an item or folder.
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Immutable instance")]
+        public static readonly PropertySet DefaultProperties = PropertySet.CreateReadonlyPropertySet(BasePropertySet.Default);
+
+        /// <summary>
         /// Returns a predefined property set that includes the first class properties of an item or folder.
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Immutable instance")]
@@ -56,6 +62,7 @@ namespace Microsoft.Exchange.WebServices.Data
             {
                 Dictionary<BasePropertySet, string> result = new Dictionary<BasePropertySet, string>();
                 result.Add(BasePropertySet.IdOnly, "IdOnly");
+                result.Add(BasePropertySet.Default, "Default");
                 result.Add(BasePropertySet.FirstClassProperties, "AllProperties");
                 return result;
             });

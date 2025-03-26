@@ -38,6 +38,11 @@ namespace Microsoft.Exchange.WebServices.Data
         /// Only includes the Id of items and folders.
         /// </summary>
         IdOnly,
+        
+        /// <summary>
+        /// Includes the Default properties specified for the folder.
+        /// </summary>
+        Default,
 
         /// <summary>
         /// Includes all the first class properties of items and folders.

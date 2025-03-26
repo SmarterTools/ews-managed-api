@@ -183,3 +183,6 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 /.vs
+/.idea/.idea.Microsoft.Exchange.WebServices.Data/.idea/.name
+/.idea/.idea.Microsoft.Exchange.WebServices.Data/.idea/indexLayout.xml
+/.idea/.idea.Microsoft.Exchange.WebServices.Data/.idea/vcs.xml
