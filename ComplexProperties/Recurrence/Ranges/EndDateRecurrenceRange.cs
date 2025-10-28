@@ -105,7 +105,7 @@ namespace Microsoft.Exchange.WebServices.Data
                 switch (reader.LocalName)
                 {
                     case XmlElementNames.EndDate:
-                        this.endDate = reader.ReadElementValueAsDateTime().Value;
+                        this.endDate = reader.ReadElementValueAsUnspecifiedDate().Value;
                         return true;
                     default:
                         return false;
